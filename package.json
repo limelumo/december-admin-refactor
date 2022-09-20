@@ -20,8 +20,58 @@
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest"
-    ]
+      "react-app/jest",
+      "prettier"
+    ],
+    "plugins": [
+      "simple-import-sort",
+      "jsx-a11y"
+    ],
+    "rules": {
+      "curly": [
+        "error",
+        "all"
+      ],
+      "no-console": [
+        "warn",
+        {
+          "allow": [
+            "warn",
+            "error"
+          ]
+        }
+      ],
+      "no-empty-function": "off",
+      "no-implicit-coercion": "error",
+      "no-redeclare": "off",
+      "no-shadow": "off",
+      "no-undef": "off",
+      "no-unused-vars": "off",
+      "no-use-before-define": "off",
+      "arrow-body-style": "off",
+      "react/function-component-definition": [
+        "error",
+        {
+          "namedComponents": "arrow-function",
+          "unnamedComponents": "arrow-function"
+        }
+      ],
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error",
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": [
+            "**/*.config.{js,ts}"
+          ]
+        }
+      ],
+      "import/prefer-default-export": "off",
+      "import/no-unresolved": "off"
+    }
   },
   "browserslist": {
     "production": [
@@ -34,5 +84,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "prettier": "^2.7.1"
   }
 }

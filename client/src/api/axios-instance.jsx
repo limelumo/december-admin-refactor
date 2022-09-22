@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getToken } from "../utils/storage";
 
 const DEFAULT_AXIOS_TIMEOUT_MILLISECONDS = 5 * 1000;
 

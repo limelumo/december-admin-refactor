@@ -2,24 +2,17 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
-import {
-  currentPageState,
-  dataPerPageState,
-  dataTotalCountState,
-  isModalOpenState,
-  usersDataState,
-} from '../../utils/userListStore';
+import { currentPageState, dataPerPageState, dataTotalCountState, usersDataState } from '../../utils/userListStore';
 import User from './components/User';
-import UserAddModal from './components/UserAddModal';
+import UserList from './components/UserList';
 import UserListPagination from './components/UserListPagination';
 import UserMenu from './components/UserMenu';
 
-const UserList = () => {
+const Users = () => {
   const [usersData, setUsersData] = useRecoilState(usersDataState);
 
   const currentPage = useRecoilValue(currentPageState);
   const dataPerPage = useRecoilValue(dataPerPageState);
-  const isModalOpen = useRecoilValue(isModalOpenState);
 
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);
 
@@ -45,19 +38,11 @@ const UserList = () => {
 
   return (
     <>
-      {isModalOpen && <UserAddModal />}
-
       <UserMenu />
-
-      {usersData.map((user) => (
-        <table key={user.id}>
-          <User {...user} />
-        </table>
-      ))}
-
+      <UserList />
       <UserListPagination />
     </>
   );
 };
 
-export default UserList;
+export default Users;

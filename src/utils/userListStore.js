@@ -5,10 +5,10 @@ export const usersDataState = atom({
   default: [],
 });
 
-// Pagination 관련
+// Pagination
 export const currentPageState = atom({
   key: 'currentPageState',
-  default: 0,
+  default: 1,
 });
 
 export const dataTotalCountState = atom({
@@ -21,8 +21,25 @@ export const dataPerPageState = atom({
   default: 10,
 });
 
-// Modal 관련
+// Modal
 export const isModalOpenState = atom({
   key: 'isModalOpenState',
   default: false,
+});
+
+export const userInfoState = atom({
+  key: 'userInfoState',
+  default: {
+    id: null,
+    name: '',
+    account_count: '',
+    email: '',
+    gender_origin: 0,
+    birth_date: '',
+    phone_number: '',
+    last_login: '',
+    allow_marketing_push: '',
+    is_active: '',
+    created_at: '',
+  },
 });

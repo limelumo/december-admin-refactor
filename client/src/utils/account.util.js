@@ -29,3 +29,16 @@ export const boolRate = (asset, payment) => {
 
   return 0 !== bool ? bool : null;
 };
+
+export const getMaskingPhoneNumber = (number) => {
+  const phoneNumber = number.replaceAll("-", "");
+
+  if (phoneNumber.length === 10) {
+    return `${phoneNumber.substring(0, 3)}-***-${phoneNumber.substring(6, 10)}`
+  }
+  if (phoneNumber.length === 11) {
+    return `${phoneNumber.substring(0, 3)}-****-${phoneNumber.substring(7, 11)}`
+  }
+
+  return null;
+}

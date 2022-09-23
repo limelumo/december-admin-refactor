@@ -1,157 +1,132 @@
 import 'antd/dist/antd.css';
 
-import { Popconfirm, Table } from 'antd';
-import axios from 'axios';
-import { useMutation, useQueryClient } from 'react-query';
+import { Input } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from 'react-query';
 import { useRecoilState, useSetRecoilState } from 'recoil';
+import styled from 'styled-components';
 
-import { EditableCell, EditableRow } from '../../../components/EditTable';
+import usersApi from '../../../api/usersApi';
 import { dataTotalCountState, usersDataState } from '../../../utils/userListStore';
-import UserAdd from './UserAdd';
+import User from './User';
+import UserAddForm from './UserAddForm';
 
 const UserList = () => {
-  const [dataSource, setDataSource] = useRecoilState(usersDataState);
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);
+  const [usersData, setUsersData] = useRecoilState(usersDataState);
 
-  const queryClient = useQueryClient();
+  const [searchKeyword, setSearchKeyword] = useState('');
 
-  const removeSelectedUser = async (id) => await axios.delete(`/users/${id}`);
+  const { Search } = Input;
 
-  const userRemoveMutation = useMutation(removeSelectedUser, {
-    onSuccess: () => queryClient.invalidateQueries('usersData'),
-    enabled: false,
-  });
-
-  const handleDelete = (id) => userRemoveMutation.mutate(id);
-
-  const defaultColumns = [
+  const { refetch: searchRefetch } = useQuery(
+    ['search-user-data', searchKeyword],
+    () => usersApi.getSearchData({ params: { q: searchKeyword } }),
     {
-      title: '고객명',
-      dataIndex: 'name',
-      width: '10%',
-      editable: true,
-    },
-    {
-      title: '보유 계좌수',
-      dataIndex: 'account_count',
-      editable: true,
-    },
-    {
-      title: '성별코드',
-      dataIndex: 'gender_origin',
-      editable: true,
-    },
-    {
-      title: '생년월일',
-      dataIndex: 'birth_date',
-      editable: true,
-    },
-    {
-      title: '휴대폰 번호',
-      dataIndex: 'phone_number',
-      editable: true,
-    },
-    {
-      title: '최근 로그인',
-      dataIndex: 'last_login',
-      editable: true,
-    },
-    {
-      title: '혜택 수신 동의',
-      dataIndex: 'allow_marketing_push',
-      editable: true,
-    },
-    {
-      title: '활성화',
-      dataIndex: 'is_active',
-      editable: true,
-    },
-    {
-      title: '가입일',
-      dataIndex: 'created_at',
-      editable: true,
-    },
-    {
-      title: 'operation',
-      dataIndex: 'operation',
-      render: (_, record) =>
-        dataSource.length >= 1 ? (
-          <Popconfirm title="삭제하시겠습니까?" onConfirm={() => handleDelete(record.id)}>
-            <button>삭제</button>
-          </Popconfirm>
-        ) : null,
-    },
-  ];
-
-  // check request
-  const updateUserData = async (editData) => await axios.put('/users', editData);
-
-  const userUpdateMutation = useMutation(updateUserData, {
-    onSuccess: () => queryClient.invalidateQueries('usersData'),
-    enabled: false,
-  });
-
-  const handleSave = (row) => {
-    const editData = [...dataSource];
-    const index = editData.findIndex((item) => row.id === item.id);
-    const item = editData[index];
-
-    editData.splice(index, 1, { ...item, ...row });
-    userUpdateMutation.mutate(editData);
-  };
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columns = defaultColumns.map((col) => {
-    if (!col.editable) {
-      return col;
+      onSuccess: (res) => {
+        setUsersData(res.data);
+        setDataTotalCount(res.headers['x-total-count']);
+      },
+      enabled: false,
+      staleTime: 2000,
     }
+  );
 
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        handleSave,
-      }),
-    };
-  });
+  useEffect(() => {
+    if (searchKeyword !== '') {
+      searchRefetch();
+    }
+  }, [searchKeyword, searchRefetch]);
+
+  const handleUserSearch = (searchKeyword) => setSearchKeyword(searchKeyword);
 
   return (
-    <section>
-      <UserAdd />
+    <Section>
+      <Wrapper>
+        <Search placeholder="검색어를 입력하세요" allowClear onSearch={handleUserSearch} style={{ width: 240 }} />
+        <UserAddForm />
+      </Wrapper>
 
-      <Table
-        components={components}
-        // rowClassName={() => 'editable-row'}
-        bordered
-        dataSource={dataSource}
-        columns={columns}
-        pagination={{ hideOnSinglePage: true }}
-      />
-    </section>
+      <ListTable>
+        <table>
+          <Thead>
+            <tr>
+              <th>고객명</th>
+              <th>보유 계좌수</th>
+              <th>이메일</th>
+              <th>성별코드</th>
+              <th>생년월일</th>
+              <th>휴대폰 번호</th>
+              <th>최근 로그인</th>
+              <th>혜택 수신 동의</th>
+              <th>활성화</th>
+              <th>가입일</th>
+              <th>삭제</th>
+            </tr>
+          </Thead>
+
+          <Tbody>
+            {usersData.map((user) => (
+              <User key={user.id} {...user} />
+            ))}
+          </Tbody>
+        </table>
+      </ListTable>
+    </Section>
   );
 };
 
-// .editable-cell {
-//   position: relative;
-// }
+const Section = styled.section`
+  padding: 0 24px;
+`;
 
-// .editable-row:hover .editable-cell-value-wrap {
-//   padding: 4px 11px;
-//   border: 1px solid #d9d9d9;
-//   border-radius: 2px;
-// }
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
 
-// [data-theme='dark'] .editable-row:hover .editable-cell-value-wrap {
-//   border: 1px solid #434343;
-// }
+const ListTable = styled.div`
+  max-width: 100%;
+  position: relative;
+  transition: opacity 0.3s;
+  user-select: none;
 
-export default UserList;
+  table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: separate;
+    text-align: center;
+    border-spacing: 0;
+  }
+`;
+
+const Thead = styled.thead`
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.3s ease;
+  vertical-align: middle;
+  overflow-wrap: break-word;
+
+  tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+
+    th {
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 500;
+      text-align: center;
+      padding: 16px;
+      border-right: 1px solid #f0f0f0;
+    }
+  }
+`;
+
+const Tbody = styled.tbody`
+  display: table-row-group;
+  vertical-align: middle;
+  border-color: inherit;
+  overflow-wrap: break-word;
+`;
+
+export default React.memo(UserList);

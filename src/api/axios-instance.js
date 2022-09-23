@@ -8,6 +8,7 @@ export const axiosInstance = axios.create({
   headers: {
     Authorization: `Bearer ${token}`,
   },
+
   paramsSerializer: function (params) {
     return new URLSearchParams(params).toString();
   },

@@ -4,7 +4,7 @@ import { Form, Input } from 'antd';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { userInfoState } from '../../../utils/userListStore';
+import { userInfoState } from '../../utils/userListStore';
 
 const UserAddInput = ({ type, label, name, required, inputData }) => {
   const [newUserInfo, setNewUserInfo] = useRecoilState(userInfoState);

@@ -1,61 +1,96 @@
 import React, { useState } from 'react';
-
-import { Api } from "../../api";
-import { setToken } from "../../utils/storage";
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { setStorageItem } from '../../utils/storage';
+import { Alert } from 'antd';
+import logo from '../../assets/logo.png';
+import styled from 'styled-components';
+import { RecoilState, useSetRecoilState } from 'recoil';
 
 const Login = () => {
   const [email, setEmail] = useState('newface@dec.com');
   const [password, setPassword] = useState('super-strong-password');
+  const [showAlert, setShowAlert] = useState(false);
+  const navigate = useNavigate();
+  // const userName = useSetRecoilState(userName);
 
-  const changeEmail = e => {
+  const changeEmail = (e) => {
     setEmail(e.target.value);
   };
 
-  const changePassword = e => {
+  const changePassword = (e) => {
     setPassword(e.target.value);
   };
 
-  const handleLogin = async(e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const { data } = await Api.authSignIn.request(email, password);
-    setToken({ token: data?.accessToken });
+    const enteredData = {
+      email,
+      password,
+    };
+    const res = await axios.post('/login', enteredData);
+    if (res.status === 200) {
+      setStorageItem('accessToken', 'Bearer ' + res.data.accessToken);
+      navigate('/');
+    }
+  };
+
+  const onFinish = (value) => {
+    console.log(value);
+    setTimeout(() => {
+      setShowAlert(true);
+    }, 3000);
   };
 
   return (
-    <section>
-      <h1>PREFACE</h1>
-      <div>
-        <div>
-
-          <h2>로그인</h2>
-        </div>
-        <form onSubmit={handleLogin}>
-          <label>
-            <input
-              type="email"
-              value={email}
-              onChange={changeEmail}
-              placeholder="이메일을 입력하세요"
-
-            />
-          </label>
-          <label>
-            <input
-              type="password"
-              autoComplete="off"
-              value={password}
-              onChange={changePassword}
-              placeholder="비밀번호를 입력하세요"
-            />
-          </label>
-          <button>
-            <span>로그인</span>
-          </button>
-        </form>
-      </div>
-      <p >Copyright © December and Company Inc.</p>
-    </section>
+    <Container>
+      <img src={logo} alt="logo" />
+      {showAlert && <Alert message="세션이 만료되어 재로그인이 필요합니다." type="warning" />}
+      <Form onSubmit={handleLogin}>
+        <input type="text" value={email} onChange={changeEmail} />
+        <input type="password" value={password} onChange={changePassword} />
+        <button type="submit">로그인</button>
+      </Form>
+      <p>Copyright © December and Company Inc.</p>
+    </Container>
   );
 };
 
 export default Login;
+
+const Container = styled.div`
+  width: 500px;
+  margin: 5rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  img {
+    width: 200px;
+    margin-bottom: 3rem;
+  }
+
+  p {
+    margin-top: 1rem;
+  }
+`;
+
+const Form = styled.form`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 2rem;
+  input {
+    padding: 0.4rem;
+    margin-bottom: 24px;
+    border-radius: 0.4rem;
+  }
+
+  button {
+    border: 0;
+    outline: 0;
+    padding: 0.4rem;
+    // background-color:
+  }
+`;

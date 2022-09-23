@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // TODO: token refresh
 const token =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQHR0LmNvbSIsImlhdCI6MTY2MzkxMzUzNSwiZXhwIjoxNjYzOTE3MTM1LCJzdWIiOiIxMDQifQ.sRxUlOQgV78uC8wJPI7fbVOHgQSOkOazuEG1IXqgqCo';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQHR0LmNvbSIsImlhdCI6MTY2Mzk0NjAzNCwiZXhwIjoxNjYzOTQ5NjM0LCJzdWIiOiIxMDQifQ.XwDhjOYItFsWNhxO5ZHny3G53fIIqL5e-tSkgqvHKoI';
 
 export const axiosInstance = axios.create({
   headers: {

@@ -1,3 +1,4 @@
+import accountsAPI from 'apis/accountAPI';
 import React from 'react';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
@@ -9,14 +10,8 @@ const AccountListSection = ({ userId }) => {
   const { data: accounts } = useQuery(
     ['accounts', userId],
     async () => {
-      const params = new URLSearchParams({ user_id: userId });
-      const res = await fetch(`http://localhost:4000/accounts?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNvY2t5YjdAbmF2ZXIuY29tIiwiaWF0IjoxNjYzOTM4NzM0LCJleHAiOjE2NjM5NDIzMzQsInN1YiI6IjEwOCJ9.uvmsQctVTszAeUQrbpyMtos05y2wvTTa3SZHwuD-SX4`,
-        },
-      });
-      const jsonArray = await res.json();
-      return jsonArray?.map((json) => new Account(json));
+      const data = await accountsAPI.getAllAccountByUserId({ userId });
+      return data?.map((json) => new Account(json));
     },
     {
       enabled: Boolean(userId),

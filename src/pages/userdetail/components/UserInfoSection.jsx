@@ -1,3 +1,4 @@
+import userAPI from 'apis/userAPI';
 import React from 'react';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
@@ -9,13 +10,8 @@ const UserInfoSection = ({ userId }) => {
   const { data: user } = useQuery(
     ['users', userId],
     async () => {
-      const res = await fetch(`http://localhost:4000/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNvY2t5YjdAbmF2ZXIuY29tIiwiaWF0IjoxNjYzOTM4NzM0LCJleHAiOjE2NjM5NDIzMzQsInN1YiI6IjEwOCJ9.uvmsQctVTszAeUQrbpyMtos05y2wvTTa3SZHwuD-SX4`,
-        },
-      });
-      const json = await res.json();
-      return new User(json);
+      const data = await userAPI.getOneUsersById({ id: userId });
+      return new User(data);
     },
     {
       enabled: Boolean(userId),

@@ -7,9 +7,9 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
 import usersApi from '../../../api/usersApi';
+import UserAddForm from '../../../components/Users/UserAddForm';
 import { dataTotalCountState, usersDataState } from '../../../utils/userListStore';
 import User from './User';
-import UserAddForm from './UserAddForm';
 
 const UserList = () => {
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);

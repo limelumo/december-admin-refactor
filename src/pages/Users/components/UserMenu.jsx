@@ -1,90 +1,70 @@
 import 'antd/dist/antd.css';
 
-import { Input, PageHeader, Search, Select, Space } from 'antd';
-import axios from 'axios';
-import { useState } from 'react';
+import { PageHeader, Select } from 'antd';
+import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { currentPageState, dataPerPageState, dataTotalCountState, usersDataState } from '../../../utils/userListStore';
+import usersApi from '../../../api/usersApi';
+import { dataTotalCountState, usersDataState } from '../../../utils/userListStore';
 
 const UserMenu = () => {
-  const [searchKeyword, setSearchKeyword] = useState('');
-
-  const [usersData, setUsersData] = useRecoilState(usersDataState);
-
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);
+  const setUsersData = useSetRecoilState(usersDataState);
 
-  const currentPage = useRecoilValue(currentPageState);
-  const dataPerPage = useRecoilValue(dataPerPageState);
+  const [config, setConfig] = useState('');
 
-  const { Search } = Input;
+  const navigate = useNavigate();
+
   const { Option, OptGroup } = Select;
 
-  const getSearchData = async (searchKeyword) => await axios.get('/users', { params: { q: searchKeyword } });
-
-  const { refetch: searchRefetch } = useQuery(['search-user-data', searchKeyword], () => getSearchData(searchKeyword), {
-    onSuccess: (res) => {
-      // TODO: setQueryData?
-      setUsersData(res.data);
-      setDataTotalCount(res.headers['x-total-count']);
-    },
-    enabled: false,
-  });
-
-  const handleUserSearch = (searchKeyword) => {
-    setSearchKeyword(searchKeyword); // TODO: keyword 셋팅 후 refetch 실행
-    searchRefetch(searchKeyword);
-  };
-
-  // select
-  const getUsersData = async (currentPage) => {
-    const response = await axios.get('/users', {
-      params: {
-        _limit: dataPerPage,
-        _page: `${currentPage}`,
-        // ${value}: 'true',
+  const { refetch: filterRefetch } = useQuery(
+    ['filter-user-data', config],
+    () => usersApi.getSearchData({ params: config }),
+    {
+      onSuccess: (res) => {
+        setUsersData(res.data);
+        setDataTotalCount(res.headers['x-total-count']);
       },
-    });
-    return response;
-  };
+      enabled: false,
+      staleTime: 2000,
+    }
+  );
 
-  const { refetch: selectRefetch } = useQuery(['usersData', currentPage], () => getUsersData(currentPage), {
-    onSuccess: (res) => {
-      setUsersData(res.data);
-      setDataTotalCount(res.headers['x-total-count']);
-    },
-    keepPreviousData: true,
-    staleTime: 5000,
-  });
+  useEffect(() => {
+    if (config !== '') {
+      filterRefetch();
+    }
+  }, [config, filterRefetch]);
 
   const handleChange = (value) => {
-    console.log(`selected ${value}`);
-    selectRefetch();
+    if (value === '활성') {
+      setConfig({ is_active: true });
+    }
+    if (value === '비활성') {
+      setConfig({ is_active: false });
+    }
+    if (value === '보유') {
+      setConfig({ is_staff: true });
+    }
+    if (value === '미보유') {
+      setConfig({ is_staff: false });
+    }
   };
 
   return (
     <MenuContainer title="고객 리스트">
-      <Space direction="vertical">
-        <Search placeholder="검색어를 입력하세요" allowClear onSearch={handleUserSearch} style={{ width: 240 }} />
-      </Space>
-
-      <Select
-        defaultValue="활성 고객"
-        style={{
-          width: 200,
-        }}
-        onChange={handleChange}
-      >
+      <Select defaultValue="Filter" style={{ width: 200 }} onChange={handleChange}>
         <OptGroup label="활성화">
-          <Option value="is_active">활성 고객</Option>
-          <Option value="비활성 고객">비활성 고객</Option>
+          <Option value="활성">활성 고객</Option>
+          <Option value="비활성">비활성 고객</Option>
         </OptGroup>
 
         <OptGroup label="임직원 계좌">
-          <Option value="임직원 계좌 고객">임직원 계좌 보유 고객</Option>
-          <Option value="임직원 계좌 미보유 고객">임직원 계좌 미보유 고객</Option>
+          <Option value="보유">임직원 계좌 보유 고객</Option>
+          <Option value="미보유">임직원 계좌 미보유 고객</Option>
         </OptGroup>
       </Select>
     </MenuContainer>

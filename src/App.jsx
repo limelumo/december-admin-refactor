@@ -1,19 +1,28 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Accounts from './pages/Accounts';
-import Login from './pages/Login/Login';
-import './App.css';
+import 'antd/dist/antd.css';
+
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import Accounts from './pages/accounts/accounts';
+
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+import Main from './pages/Main';
+import UserList from './pages/UserList/UserList';
+
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/accounts" element={<Accounts />} />
-        <Route path="/account/:id" element={<Accounts />}/>
-        <Route path="/users" element={<Accounts />} />
-        <Route path="/user/:id" element={<Accounts />} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Main/>}/>
+          <Route path="/accounts" element={<Accounts/>}/>
+          <Route path="/users" element={<UserList/>}/>
+          <Route path="*" element={<div>404 Not Found</div>}/>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 

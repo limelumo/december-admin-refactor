@@ -1,40 +1,56 @@
-import axios from 'axios';
-import { useQuery } from 'react-query';
+import { useEffect } from 'react';
+import { useQueries } from 'react-query';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
-import { currentPageState, dataPerPageState, dataTotalCountState, usersDataState } from '../../utils/userListStore';
-import User from './components/User';
+import usersApi from '../../api/usersApi';
+import { formatUsersData } from '../../utils/formatUsersData';
+import {
+  currentPageState,
+  dataPerPageState,
+  dataTotalCountState,
+  originalDataState,
+  usersDataState,
+  userSettingDataState,
+} from '../../utils/userListStore';
 import UserList from './components/UserList';
 import UserListPagination from './components/UserListPagination';
 import UserMenu from './components/UserMenu';
 
 const Users = () => {
-  const [usersData, setUsersData] = useRecoilState(usersDataState);
-
   const currentPage = useRecoilValue(currentPageState);
   const dataPerPage = useRecoilValue(dataPerPageState);
 
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);
+  const setUsersData = useSetRecoilState(usersDataState);
 
-  const getUsersData = async (currentPage) => {
-    const response = await axios.get('/users', {
-      params: {
-        _limit: dataPerPage,
-        _page: `${currentPage}`,
+  const [userSettingData, setUserSettingData] = useRecoilState(userSettingDataState);
+
+  useQueries([
+    {
+      queryKey: ['users', currentPage],
+      queryFn: () => usersApi.getUsersData({ params: { _limit: dataPerPage, _page: currentPage } }),
+      onSuccess: (res) => {
+        setDataTotalCount(res.headers['x-total-count']);
+        setUsersData(
+          res.data.map((user) => {
+            return {
+              ...formatUsersData(user),
+              is_active: userSettingData.find((el) => el.uuid === user.uuid)?.is_active,
+              is_staff: userSettingData.find((el) => el.uuid === user.uuid)?.is_staff,
+              allow_marketing_push: userSettingData.find((el) => el.uuid === user.uuid)?.allow_marketing_push,
+              // TODO: 보유계좌 수
+            };
+          })
+        );
       },
-    });
-    return response;
-  };
-
-  // TODO: 상황별 예외처리
-  useQuery(['usersData', currentPage], () => getUsersData(currentPage), {
-    onSuccess: (res) => {
-      setUsersData(res.data);
-      setDataTotalCount(res.headers['x-total-count']);
     },
-    keepPreviousData: true,
-    staleTime: 5000,
-  });
+    {
+      queryKey: ['userSetting'],
+      queryFn: () => usersApi.getUserSettingData(),
+      onSuccess: (res) => setUserSettingData(res.data),
+      keepPreviousData: true,
+    },
+  ]);
 
   return (
     <>

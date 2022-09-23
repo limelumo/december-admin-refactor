@@ -8,7 +8,6 @@ import { currentPageState, dataTotalCountState } from '../../../utils/userListSt
 
 const UserListPagination = () => {
   const dataTotalCount = useRecoilValue(dataTotalCountState);
-
   const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 
   const handlePageButton = (page) => setCurrentPage(page);

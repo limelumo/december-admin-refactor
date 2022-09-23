@@ -5,6 +5,11 @@ export const usersDataState = atom({
   default: [],
 });
 
+export const userSettingDataState = atom({
+  key: 'userSettingDataState',
+  default: [],
+});
+
 // Pagination
 export const currentPageState = atom({
   key: 'currentPageState',
@@ -22,11 +27,6 @@ export const dataPerPageState = atom({
 });
 
 // Modal
-export const isModalOpenState = atom({
-  key: 'isModalOpenState',
-  default: false,
-});
-
 export const userInfoState = atom({
   key: 'userInfoState',
   default: {

@@ -5,10 +5,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import AccountDetail from './pages/AccountDetail/AccountDetail';
 import Accounts from './pages/accounts/accounts';
-import Login from './pages/login/Login';
+import Login from './pages/Login/Login';
 import Main from './pages/Main';
-import UserDetail from './pages/UserDetail';
-import UserList from './pages/UserList/UserList';
+import UserDetail from './pages/userdetail/UserDetail';
+import UserList from './pages/Users/components/UserList';
 
 const queryClient = new QueryClient();
 

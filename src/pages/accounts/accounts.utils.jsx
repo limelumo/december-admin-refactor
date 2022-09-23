@@ -3,14 +3,8 @@ import { Link } from 'react-router-dom';
 
 import { accountStatus, brokerFormat, brokers } from '../../data';
 
-const maskNumber = (number) => {
-  const numberArr = [...String(number)];
-  for (let [left, right] = [0, numberArr.length - 1]; left <= 1; left += 1, right -= 1) {
-    numberArr[left] = '*';
-    numberArr[right] = '*';
-  }
-  return numberArr.join('');
-};
+const maskNumber = (number) =>
+  [...String(number)].map((el, i) => (i < 2 || i > number?.length - 3 ? el : '*')).join('');
 
 const formatAccountNumber = (broker_id, number) => {
   const numberArr = [...maskNumber(number)];
@@ -22,7 +16,7 @@ const formatAccountNumber = (broker_id, number) => {
   return numberArr.join('');
 };
 
-const formatPrice = (price) => Math.trunc(Number(price)).toLocaleString();
+const formatPrice = (price) => Number(price).toLocaleString();
 
 const getKeyByValue = (object, value) => {
   return Object.keys(object).find((key) => object[key] === value);
@@ -46,6 +40,10 @@ export const formatAccountData = ({
   assets: formatPrice(assets),
   payments: formatPrice(payments),
   created_at: created_at?.slice(0, 10),
-  is_active: is_active ? <CheckOutlined style={{ color: 'green' }} /> : <CloseOutlined style={{ color: 'red' }} />,
+  is_active: is_active ? (
+    <CheckOutlined key={'활성화'} style={{ color: 'green' }} />
+  ) : (
+    <CloseOutlined key={'비활성화'} style={{ color: 'red' }} />
+  ),
   status: getKeyByValue(accountStatus, status),
 });

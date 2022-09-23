@@ -1,41 +1,38 @@
 import React, { useState } from 'react';
-import { Alert } from 'antd';
-import axios from 'axios';
-import logo from '../assets/logo.png';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { setStorageItem } from '../../utils/storage';
+import { Alert } from 'antd';
+import logo from '../../assets/logo.png';
+import styled from 'styled-components';
+import { RecoilState, useSetRecoilState } from 'recoil';
 
 const Login = () => {
-  const [id, setId] = useState('');
-  const [pwd, setPwd] = useState('');
+  const [email, setEmail] = useState('newface@dec.com');
+  const [password, setPassword] = useState('super-strong-password');
   const [showAlert, setShowAlert] = useState(false);
   const navigate = useNavigate();
+  // const userName = useSetRecoilState(userName);
 
-  // "email" : "newface@dco.com
-  // "password":"super-strong-password
+  const changeEmail = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const changePassword = (e) => {
+    setPassword(e.target.value);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     const enteredData = {
-      email: id,
-      password: pwd,
+      email,
+      password,
     };
-
-    const res = await axios.post('http://localhost:3000/login', enteredData);
+    const res = await axios.post('/login', enteredData);
     if (res.status === 200) {
-      console.log(res);
-      localStorage.setItem('accessToken', res.data.accessToken);
+      setStorageItem('accessToken', 'Bearer ' + res.data.accessToken);
       navigate('/');
     }
-  };
-
-  const handleIdChange = (e) => {
-    console.log(e.target.value);
-    setId(e.target.value);
-  };
-  const handlePwdChange = (e) => {
-    console.log(e.target.value);
-    setPwd(e.target.value);
   };
 
   const onFinish = (value) => {
@@ -50,8 +47,8 @@ const Login = () => {
       <img src={logo} alt="logo" />
       {showAlert && <Alert message="세션이 만료되어 재로그인이 필요합니다." type="warning" />}
       <Form onSubmit={handleLogin}>
-        <input type="text" value={id} onChange={handleIdChange} />
-        <input type="password" value={pwd} onChange={handlePwdChange} />
+        <input type="text" value={email} onChange={changeEmail} />
+        <input type="password" value={password} onChange={changePassword} />
         <button type="submit">로그인</button>
       </Form>
       <p>Copyright © December and Company Inc.</p>

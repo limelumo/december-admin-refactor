@@ -9,11 +9,10 @@ const Accounts = () => {
         const res = await accountsAPI.getAllAccount('/accounts');
         return res;
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
     const res = fetch();
-    console.log(res);
   }, []);
 
   return (

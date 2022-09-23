@@ -9,7 +9,6 @@ const accountsAPI = {
     const { data } = await axiosInstance.get(`/accounts/${id}`);
     return data;
   },
-
   updateAccountsById: async ({ id }) => {
     const { data } = await axiosInstance.patch(`/accounts/${id}`);
     return data;

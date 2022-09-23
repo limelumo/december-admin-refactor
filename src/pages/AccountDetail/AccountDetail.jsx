@@ -1,7 +1,8 @@
 import { Col, Row } from "antd";
+import queryString from 'query-string';
 import React from 'react';
 import { useQuery } from "react-query";
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import styled from "styled-components";
 
 import { Api } from "../../api";
@@ -14,23 +15,33 @@ import { UserSetting } from "./components/UserSetting";
 export const AccountDetail = () => {
 
   const {id} = useParams();
+  const {search} = useLocation();
+
+  const {user_id} = queryString.parse(search);
+
 
   const fetcherAccount = async () => {
+
     const {data: accountId} = await Api.getAccountUser.request({
-      user_id: id
+      id,
+      user_id
     });
 
-    const {data: userId} = await Api.getOneUser.request({userId: id});
+    const {data: userId} = await Api.getOneUser.request({userId: user_id});
 
     const {data: userSetting} = await Api.getOneUserSetting.request({
       uuid: userId.uuid
     });
 
+    const userOneAccount = accountId.find(item => {
+      return item.user_id === Number(user_id);
+    });
+
     const userOneSetting = userSetting.find(item => userId.uuid === item.uuid);
 
     return {
-      accountId,
       userId,
+      userOneAccount,
       userOneSetting
     };
   };
@@ -44,10 +55,10 @@ export const AccountDetail = () => {
     <>
       {!isLoading &&
         <RootWrap>
-          <AccountBreadCrumb id={id}/>
+          <AccountBreadCrumb id={data.userId.name}/>
           <Row gutter={10} justify="center">
             <Col span={25}>
-              <Account accounts={data.accountId}/>
+              <Account account={data.userOneAccount}/>
             </Col>
             <Col span={25}>
               <AccountUser userAccount={data.userId}/>

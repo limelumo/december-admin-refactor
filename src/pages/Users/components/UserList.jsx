@@ -26,6 +26,7 @@ const UserList = () => {
       onSuccess: (res) => {
         setUsersData(res.data);
         setDataTotalCount(res.headers['x-total-count']);
+        setSearchKeyword('');
       },
       enabled: false,
       staleTime: 2000,

@@ -33,10 +33,10 @@ const Users = () => {
           res.data.map((user) => {
             return {
               ...formatUsersData(user),
-              is_active: userSettingData.find((el) => el.uuid === user.uuid)?.is_active,
-              is_staff: userSettingData.find((el) => el.uuid === user.uuid)?.is_staff,
-              allow_marketing_push: userSettingData.find((el) => el.uuid === user.uuid)?.allow_marketing_push,
-              // TODO: 보유계좌 수
+              is_active: userSettingData.find((el) => el.uuid === user.uuid)?.is_active, //TODO: 결과값 여러개 -> userData와 같은 uuid와 object 합치기..
+              is_staff: userSettingData.find((el) => el.uuid === user.uuid)?.is_staff, // TODO: 결과값 여러개 -> userData와 같은 uuid와 object 합치기..
+              allow_marketing_push: userSettingData.find((el) => el.uuid === user.uuid)?.allow_marketing_push, //TODO: 결과값 여러개 -> userData와 같은 uuid와 object 합치기..
+              // TODO: 보유계좌 수 : accounts에 user_id가 같은 갯수 count하여 설정
             };
           })
         );

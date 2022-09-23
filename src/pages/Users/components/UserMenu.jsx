@@ -4,7 +4,6 @@ import { PageHeader, Select } from 'antd';
 import usersApi from 'api/usersApi';
 import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { dataTotalCountState, usersDataState } from 'utils/userListStore';
@@ -14,8 +13,6 @@ const UserMenu = () => {
   const setUsersData = useSetRecoilState(usersDataState);
 
   const [config, setConfig] = useState('');
-
-  const navigate = useNavigate();
 
   const { Option, OptGroup } = Select;
 
@@ -54,7 +51,7 @@ const UserMenu = () => {
   };
 
   return (
-    <MenuContainer title="고객 리스트">
+    <MenuContainer title="고객 리스트" onBack={() => window.location.reload()}>
       <Select defaultValue="Filter" style={{ width: 200 }} onChange={handleChange}>
         <OptGroup label="활성화">
           <Option value="활성">활성 고객</Option>

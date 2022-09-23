@@ -64,18 +64,21 @@ export const COLUMNS = [
     dataIndex: 'assets',
     key: 'assets',
     width: 100,
+    sorter: (l, r) => Number(l?.assets?.split(',').join('')) - Number(r?.assets?.split(',').join('')),
   },
   {
     title: '입금금액',
     dataIndex: 'payments',
     key: 'payments',
     width: 100,
+    sorter: (l, r) => Number(l?.payments?.split(',').join('')) - Number(r?.payments?.split(',').join('')),
   },
   {
     title: '계좌개설일',
     dataIndex: 'created_at',
     key: 'created_at',
     width: 70,
+    sorter: (l, r) => Number(l?.created_at?.split('-').join('')) - Number(r?.created_at?.split('-').join('')),
   },
   {
     title: '계좌활성화여부',

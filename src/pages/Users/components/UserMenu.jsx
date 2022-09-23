@@ -1,14 +1,13 @@
 import 'antd/dist/antd.css';
 
 import { PageHeader, Select } from 'antd';
+import usersApi from 'api/usersApi';
 import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-
-import usersApi from '../../../api/usersApi';
-import { dataTotalCountState, usersDataState } from '../../../utils/userListStore';
+import { dataTotalCountState, usersDataState } from 'utils/userListStore';
 
 const UserMenu = () => {
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);

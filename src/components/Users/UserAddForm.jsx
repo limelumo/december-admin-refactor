@@ -1,13 +1,13 @@
 import 'antd/dist/antd.css';
 
-import { Button, Form, Modal } from 'antd';
+import { Button, Modal } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
+import { userInfoState } from 'utils/userListStore';
 
-import { userInfoState } from '../../utils/userListStore';
 import UserAddInput from './UserAddInput';
 
 const UserAddForm = () => {

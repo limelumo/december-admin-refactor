@@ -1,17 +1,15 @@
-import { useEffect } from 'react';
+import usersApi from 'api/usersApi';
 import { useQueries } from 'react-query';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-
-import usersApi from '../../api/usersApi';
-import { formatUsersData } from '../../utils/formatUsersData';
+import { formatUsersData } from 'utils/formatUsersData';
 import {
   currentPageState,
   dataPerPageState,
   dataTotalCountState,
-  originalDataState,
   usersDataState,
   userSettingDataState,
-} from '../../utils/userListStore';
+} from 'utils/userListStore';
+
 import UserList from './components/UserList';
 import UserListPagination from './components/UserListPagination';
 import UserMenu from './components/UserMenu';

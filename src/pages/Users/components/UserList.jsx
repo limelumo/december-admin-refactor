@@ -1,14 +1,14 @@
 import 'antd/dist/antd.css';
 
 import { Input } from 'antd';
+import usersApi from 'api/usersApi';
+import UserAddForm from 'components/Users/UserAddForm';
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+import { dataTotalCountState, usersDataState } from 'utils/userListStore';
 
-import usersApi from '../../../api/usersApi';
-import UserAddForm from '../../../components/Users/UserAddForm';
-import { dataTotalCountState, usersDataState } from '../../../utils/userListStore';
 import User from './User';
 
 const UserList = () => {

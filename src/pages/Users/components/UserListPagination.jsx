@@ -3,8 +3,7 @@ import 'antd/dist/antd.css';
 import { Pagination } from 'antd';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-
-import { currentPageState, dataTotalCountState } from '../../../utils/userListStore';
+import { currentPageState, dataTotalCountState } from 'utils/userListStore';
 
 const UserListPagination = () => {
   const dataTotalCount = useRecoilValue(dataTotalCountState);

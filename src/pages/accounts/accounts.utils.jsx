@@ -28,9 +28,20 @@ const getKeyByValue = (object, value) => {
   return Object.keys(object).find((key) => object[key] === value);
 };
 
-export const formatAccountData = ({ broker_id, number, name, assets, payments, created_at, is_active, status }) => ({
+export const formatAccountData = ({
+  id,
+  user_id,
+  broker_id,
+  number,
+  name,
+  assets,
+  payments,
+  created_at,
+  is_active,
+  status,
+}) => ({
   broker_name: brokers[broker_id],
-  number: <Link to={`/account/${'id를 어떻게하지'}}`}>{formatAccountNumber(broker_id, number)}</Link>,
+  number: <Link to={`/account/${id}?user_id=${user_id}`}>{formatAccountNumber(broker_id, number)}</Link>,
   name,
   assets: formatPrice(assets),
   payments: formatPrice(payments),

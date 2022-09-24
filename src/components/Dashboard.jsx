@@ -14,6 +14,7 @@ const Dashboard = () => {
   const pathName = location.pathname;
   const detailPath = useParams();
   const userDetail = detailPath.user_id;
+  const accountDetail = detailPath.id;
   const [collapsed, setCollapsed] = useState(false);
   const [userName, setUserName] = useState('');
   const [pageName, setPageName] = useState('');
@@ -32,6 +33,11 @@ const Dashboard = () => {
     return userInfo;
   };
 
+  const hadleAccountDetailPageName = async (id) => {
+    const userInfo = await usersApi.getUserDataByID(id);
+    return userInfo;
+  };
+
   useEffect(() => {
     const name = localStorage.getItem('userName');
     setUserName(name);
@@ -40,7 +46,16 @@ const Dashboard = () => {
       hadleUserDetailPageName(userDetail)
         .then((response) => response)
         .then((data) => {
-          const page = data.name + ' 님의 계좌 목록';
+          const page = data.name + '님의 계좌 목록';
+          setPageName(page);
+        });
+    }
+
+    if (Boolean(accountDetail)) {
+      hadleAccountDetailPageName(accountDetail)
+        .then((response) => response)
+        .then((data) => {
+          const page = data.name + '님의 계좌 상세';
           setPageName(page);
         });
     }

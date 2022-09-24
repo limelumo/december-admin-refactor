@@ -1,12 +1,12 @@
 import 'antd/dist/antd.css';
 
 import { Button, Modal } from 'antd';
-import axios from 'axios';
+import usersApi from 'api/usersApi';
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useRecoilState } from 'recoil';
+import { userInfoState } from 'store/userList';
 import styled from 'styled-components';
-import { userInfoState } from 'utils/userListStore';
 
 import UserAddInput from './UserAddInput';
 
@@ -40,9 +40,9 @@ const UserAddForm = () => {
     setModalText(modalContent);
   }, []);
 
-  const addNewUserData = (newUserInfo) => axios.post('/users', newUserInfo);
+  // const addNewUserData = (newUserInfo) => axios.post('/users', newUserInfo);
 
-  const { mutate } = useMutation(addNewUserData, {
+  const { mutate } = useMutation((newUserInfo) => usersApi.addNewUserData(newUserInfo), {
     onSuccess: () => {
       queryClient.invalidateQueries('users');
       setNewUserInfo('');

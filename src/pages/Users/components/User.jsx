@@ -1,7 +1,8 @@
 import 'antd/dist/antd.css';
 
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Popconfirm } from 'antd';
-import axios from 'axios';
+import usersApi from 'api/usersApi';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
@@ -10,23 +11,16 @@ import styled from 'styled-components';
 const User = (user) => {
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState(user.name);
-  const targetId = user.id;
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const removeUser = async (targetId) => await axios.delete(`/users/${targetId}`);
-
-  const { mutate: removeMutate } = useMutation(removeUser, {
+  const { mutate: removeMutate } = useMutation((targetId) => usersApi.removeUser(targetId), {
     onSuccess: () => queryClient.invalidateQueries('users'),
     enabled: false,
   });
 
-  const handleDelete = (id) => removeMutate(targetId);
-
-  const editUser = async (targetId) => await axios.patch(`/users/${targetId}`, { name: name });
-
-  const { mutate: editMutate } = useMutation(editUser, {
+  const { mutate: editMutate } = useMutation((targetId) => usersApi.updateUserData(targetId, name), {
     onSuccess: () => {
       queryClient.invalidateQueries('users');
       setIsEdit(false);
@@ -34,13 +28,15 @@ const User = (user) => {
     enabled: false,
   });
 
-  const handleNameChange = (e) => setName(e.target.value);
-
-  const handleOnKeyPress = (e, id) => {
+  const handleOnKeyPress = (e, targetId) => {
     if (e.key === 'Enter') {
       editMutate(targetId);
     }
   };
+
+  const handleDelete = (targetId) => removeMutate(targetId);
+
+  const handleNameChange = (e) => setName(e.target.value);
 
   const renderName = (user) => (
     <EditBtnWrapper>
@@ -55,6 +51,13 @@ const User = (user) => {
     <Input type="text" value={name} onChange={handleNameChange} onKeyPress={(e) => handleOnKeyPress(e, user.id)} />
   );
 
+  const renderChecked = (value) => {
+    const trueCheck = <CheckOutlined style={{ fontSize: '16px' }} />;
+    const falseCheck = <CloseOutlined style={{ color: 'salmon', fontSize: '16px' }} />;
+
+    return <>{value === 'true' ? trueCheck : falseCheck}</>;
+  };
+
   return (
     <>
       <Tr>
@@ -65,8 +68,8 @@ const User = (user) => {
         <Td>{user.birth_date}</Td>
         <Td>{user.phone_number}</Td>
         <Td>{user.last_login}</Td>
-        <Td>{user.allow_marketing_push}</Td>
-        <Td>{user.is_active}</Td>
+        <Td>{renderChecked(user.allow_marketing_push)}</Td>
+        <Td>{renderChecked(user.is_active)}</Td>
         <Td>{user.created_at}</Td>
         <Td>
           <DelButton title="삭제하시겠습니까?" onConfirm={() => handleDelete(user.id)}>

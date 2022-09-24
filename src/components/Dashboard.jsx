@@ -51,13 +51,13 @@ const Dashboard = () => {
         });
     }
 
-    if(Boolean(accountDetail)) {
+    if (Boolean(accountDetail)) {
       hadleAccountDetailPageName(accountDetail)
-      .then((response) => response)
-      .then((data) => {
-        const page = data.name + '님의 계좌 상세';
-        setPageName(page);
-      });
+        .then((response) => response)
+        .then((data) => {
+          const page = data.name + '님의 계좌 상세';
+          setPageName(page);
+        });
     }
     const page = hadlePageName();
     setPageName(page);

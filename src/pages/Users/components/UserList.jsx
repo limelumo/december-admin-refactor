@@ -3,10 +3,11 @@ import 'antd/dist/antd.css';
 import { Input } from 'antd';
 import usersApi from 'api/usersApi';
 import UserAddForm from 'components/Users/UserAddForm';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from 'react-query';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+import { formatSearchedData } from 'utils/formatUsersData';
 import { dataTotalCountState, usersDataState } from 'utils/userListStore';
 
 import User from './User';
@@ -21,11 +22,12 @@ const UserList = () => {
 
   const { refetch: searchRefetch } = useQuery(
     ['search-user-data', searchKeyword],
-    () => usersApi.getSearchData({ params: { q: searchKeyword } }),
+    () => usersApi.getSearchData({ q: searchKeyword }),
     {
       onSuccess: (res) => {
-        setUsersData(res.data);
+        // TODO: 추가 값 넣기?
         setDataTotalCount(res.headers['x-total-count']);
+        setUsersData(res.data.map((user) => formatSearchedData(user)));
         setSearchKeyword('');
       },
       enabled: false,
@@ -33,18 +35,19 @@ const UserList = () => {
     }
   );
 
-  useEffect(() => {
-    if (searchKeyword !== '') {
-      searchRefetch();
-    }
-  }, [searchKeyword, searchRefetch]);
-
-  const handleUserSearch = (searchKeyword) => setSearchKeyword(searchKeyword);
+  const handleUserSearch = (searchKeyword) => searchRefetch();
 
   return (
     <Section>
       <Wrapper>
-        <Search placeholder="검색어를 입력하세요" allowClear onSearch={handleUserSearch} style={{ width: 240 }} />
+        <Search
+          placeholder="검색어를 입력하세요"
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          onSearch={handleUserSearch}
+          style={{ width: 240 }}
+          allowClear
+        />
         <UserAddForm />
       </Wrapper>
 

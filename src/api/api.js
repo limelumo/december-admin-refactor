@@ -21,6 +21,10 @@ const Api = {
     const { data } = await axiosInstance.get('/usersetting');
     return data;
   },
+  getAllAccountByUserId: async (userId) => {
+    const { data } = await axiosInstance.get('/accounts', { params: { user_id: userId } });
+    return data;
+  },
 };
 
 export default Api;

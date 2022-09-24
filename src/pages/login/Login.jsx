@@ -37,7 +37,6 @@ const Login = () => {
   return (
     <Container>
       <img src={logo} alt="logo" />
-      {showAlert && <Alert message="세션이 만료되어 재로그인이 필요합니다." type="warning" />}
       <Form onSubmit={handleLogin}>
         <input type="text" value={email} onChange={changeEmail} />
         <input type="password" value={password} onChange={changePassword} />

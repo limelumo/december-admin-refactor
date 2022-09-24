@@ -1,8 +1,7 @@
 import axios from 'axios';
+import { clearStorage } from '../utils/storage';
 
-// TODO: token refresh
-const token =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQHR0LmNvbSIsImlhdCI6MTY2MzkxMzUzNSwiZXhwIjoxNjYzOTE3MTM1LCJzdWIiOiIxMDQifQ.sRxUlOQgV78uC8wJPI7fbVOHgQSOkOazuEG1IXqgqCo';
+const token = localStorage.getItem('accessToken');
 
 export const axiosInstance = axios.create({
   headers: {
@@ -14,3 +13,20 @@ export const axiosInstance = axios.create({
   },
   timeout: 3000,
 });
+
+axiosInstance.interceptors.response.use(
+  (res) => {
+    return res;
+  },
+  async (error) => {
+    try {
+      const errResponseStatus = error.response.status;
+      if (errResponseStatus === 401) {
+        clearStorage();
+        window.location.replace('/login');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+);

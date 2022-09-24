@@ -5,7 +5,8 @@ import Header from './Header';
 import { BankOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import logo from '../assets/logo_white.png';
-import userAPI from 'apis/userAPI';
+import usersApi from 'api/usersApi';
+
 
 const { Footer, Sider } = Layout;
 
@@ -28,7 +29,7 @@ const Dashboard = () => {
   };
 
   const hadleUserDetailPageName = async (id) => {
-    const userInfo = await userAPI.getOneUsersById(id);
+    const userInfo = await usersApi.getUserDataByID(id);
     return userInfo;
   };
 

@@ -68,7 +68,7 @@
           "unnamedComponents": "arrow-function"
         }
       ],
-      "simple-import-sort/imports": "error",
+      "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "error",
       "import/first": "error",
       "import/newline-after-import": "error",

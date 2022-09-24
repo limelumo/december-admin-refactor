@@ -13,7 +13,7 @@ import UserAddInput from './UserAddInput';
 const UserAddForm = () => {
   const [newUserInfo, setNewUserInfo] = useRecoilState(userInfoState);
 
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState('');
 
@@ -24,15 +24,15 @@ const UserAddForm = () => {
       <UserAddInput required label={'고객명'} name={'name'} />
       <UserAddInput label={'성별코드'} name={'gender_origin'} />
       <UserAddInput required label={'이메일'} name={'email'} />
-      <UserAddInput required type={'password'} label={'패스워드'} name={'password'} />
+      <UserAddInput required label={'패스워드'} name={'password'} type={'password'} />
       <UserAddInput label={'보유 계좌수'} name={'account_count'} />
       <UserAddInput label={'생년월일'} name={'birth_date'} />
       <UserAddInput required label={'휴대폰 번호'} name={'phone_number'} />
       <UserAddInput label={'가입일'} name={'created_at'} />
-      <UserAddInput required label={'활성화'} name={'is_active'} />
-      <UserAddInput required label={'임직원 계좌 보유'} name={'is_staff'} />
+      <UserAddInput required label={'활성화'} name={'is_active'} type={'toggle'} />
+      <UserAddInput required label={'임직원 계좌 보유'} name={'is_staff'} type={'toggle'} />
       <UserAddInput label={'최근 로그인'} name={'last_login'} />
-      <UserAddInput required label={'혜택 수신 동의'} name={'allow_marketing_push'} />
+      <UserAddInput required label={'혜택 수신 동의'} name={'allow_marketing_push'} type={'toggle'} />
     </Content>
   );
 
@@ -50,15 +50,15 @@ const UserAddForm = () => {
     enabled: false,
   });
 
-  const showModal = () => setOpen(true);
-  const handleCancel = () => setOpen(false);
+  const showModal = () => setIsOpen(true);
+  const handleCancel = () => setIsOpen(false);
 
   const handleOk = () => {
     setConfirmLoading(true);
     mutate(newUserInfo);
 
     setTimeout(() => {
-      setOpen(false);
+      setIsOpen(false);
       setConfirmLoading(false);
     }, 2000);
   };
@@ -75,15 +75,17 @@ const UserAddForm = () => {
         새로운 고객 등록
       </Button>
 
-      <Modal
-        title="새로운 고객 등록"
-        open={open}
-        onOk={handleOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancel}
-      >
-        <Content>{modalText}</Content>
-      </Modal>
+      {isOpen && (
+        <Modal
+          title="새로운 고객 등록"
+          open={isOpen}
+          onOk={handleOk}
+          confirmLoading={confirmLoading}
+          onCancel={handleCancel}
+        >
+          {modalText}
+        </Modal>
+      )}
     </>
   );
 };

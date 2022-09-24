@@ -32,33 +32,3 @@ export const formatUsersData = ({
   last_login: last_login?.slice(0, 10),
   created_at: created_at?.slice(0, 10),
 });
-
-export const formatSearchedData = ({
-  uuid,
-  id,
-  allow_marketing_push,
-  is_active,
-  is_staff,
-  email,
-  gender_origin,
-  name,
-  birth_date,
-  phone_number,
-  last_login,
-  created_at,
-}) => ({
-  uuid,
-  id,
-  allow_marketing_push,
-  is_active,
-  is_staff,
-  email,
-  gender_origin,
-  name: formatName(name),
-  birth_date: birth_date?.slice(0, 10),
-  phone_number: `${phone_number?.substring(0, 3)}-****-${phone_number?.substring(9, 13)}`,
-  last_login: last_login?.slice(0, 10),
-  created_at: created_at?.slice(0, 10),
-});
-
-

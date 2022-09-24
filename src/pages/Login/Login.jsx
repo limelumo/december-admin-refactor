@@ -1,4 +1,5 @@
 import { Alert, Button } from 'antd';
+import { axiosInstance } from 'api/axios-instance';
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,7 +27,7 @@ const Login = () => {
       email,
       password,
     };
-    const res = await axios.post('/login', enteredData);
+    const res = await axiosInstance.post('/login', enteredData);
     if (res.status === 200) {
       setStorageItem('accessToken', 'Bearer ' + res.data.accessToken);
       setStorageItem('userName', res.data.user.name);

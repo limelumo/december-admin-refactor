@@ -11,7 +11,7 @@
 
 # 배포 링크
 
-- [링크](https://pre-onboarding-assignment-week-3-2-team-3-6xguxedu6-castlejun.vercel.app/)
+- [링크](https://pre-onboarding-assignment-week-4-1-team-3-hsgj.vercel.app/)
 
 <br>
 
@@ -21,7 +21,6 @@
 - [목차](#목차)
 - [3팀 소개 및 역할](#3팀-소개-및-역할)
 - [기술 스택](#기술-스택)
-- [실행방법](#실행방법)
 - [프로젝트 구조](#프로젝트-구조)
 - [과제 요건 및 구현 내용](#과제-요건-및-구현-내용)
   * [과제 요건](#과제-요건)
@@ -53,30 +52,6 @@
 
 <br><br>
 
-# 실행방법
-
-1. server Install
-
-```bash
- $ npm install
-```
-<br>
-
-2. start the json-server
-
-```
- $ json-server -p 4000 db.json -m ./node_modules/json-server-auth
-```
-<br>
-
-3. start the project
-
-```
- $ yarn start
-```
-
-<br><br>
-
 # 프로젝트 구조
 
 <details>
@@ -85,28 +60,73 @@
 
 ```
 📦src
+ ┣ 📂api
+ ┃ ┣ 📜api.js
+ ┃ ┣ 📜axios-instance.js
+ ┃ ┣ 📜index.jsx
+ ┃ ┗ 📜usersApi.js
+ ┣ 📂assets
+ ┃ ┣ 📜logo.png
+ ┃ ┗ 📜logo_white.png
  ┣ 📂components
- ┃ ┣ 📂common
- ┃ ┃ ┗ 📜common.ts
- ┃ ┣ 📂home
- ┃ ┃ ┣ 📜CommentForm.tsx
- ┃ ┃ ┗ 📜CommentList.tsx
- ┃ ┗ 📜Pagination.tsx
- ┣ 📂services
- ┃ ┗ 📜comments.ts
+ ┃ ┣ 📂Users
+ ┃ ┃ ┣ 📜UserAddForm.jsx
+ ┃ ┃ ┗ 📜UserAddInput.jsx
+ ┃ ┣ 📜Dashboard.jsx
+ ┃ ┗ 📜Header.jsx
+ ┣ 📂data
+ ┃ ┣ 📜accountStatus.json
+ ┃ ┣ 📜brokerFormat.json
+ ┃ ┣ 📜brokers.json
+ ┃ ┗ 📜index.js
+ ┣ 📂hooks
+ ┃ ┗ 📜useFormat.js
+ ┣ 📂pages
+ ┃ ┣ 📂AccountDetail
+ ┃ ┃ ┣ 📂bread-crumbs
+ ┃ ┃ ┃ ┗ 📜index.jsx
+ ┃ ┃ ┣ 📂components
+ ┃ ┃ ┃ ┣ 📜Account.jsx
+ ┃ ┃ ┃ ┣ 📜AccountUser.jsx
+ ┃ ┃ ┃ ┣ 📜style.js
+ ┃ ┃ ┃ ┗ 📜UserSetting.jsx
+ ┃ ┃ ┗ 📜AccountDetail.jsx
+ ┃ ┣ 📂accounts
+ ┃ ┃ ┣ 📜accounts.constants.js
+ ┃ ┃ ┣ 📜accounts.jsx
+ ┃ ┃ ┗ 📜accounts.utils.jsx
+ ┃ ┣ 📂Login
+ ┃ ┃ ┣ 📜AuthRoute.jsx
+ ┃ ┃ ┗ 📜Login.jsx
+ ┃ ┣ 📂userdetail
+ ┃ ┃ ┣ 📂components
+ ┃ ┃ ┃ ┣ 📜AccountListSection.jsx
+ ┃ ┃ ┃ ┣ 📜common.js
+ ┃ ┃ ┃ ┗ 📜UserInfoSection.jsx
+ ┃ ┃ ┗ 📜UserDetail.jsx
+ ┃ ┣ 📂Users
+ ┃ ┃ ┣ 📂components
+ ┃ ┃ ┃ ┣ 📜User.jsx
+ ┃ ┃ ┃ ┣ 📜UserList.jsx
+ ┃ ┃ ┃ ┣ 📜UserListPagination.jsx
+ ┃ ┃ ┃ ┗ 📜UserMenu.jsx
+ ┃ ┃ ┗ 📜Users.jsx
+ ┃ ┗ 📜Main.jsx
  ┣ 📂store
- ┃ ┗ 📜store.ts
+ ┃ ┣ 📜account.js
+ ┃ ┣ 📜user.js
+ ┃ ┗ 📜userList.js
  ┣ 📂utils
- ┃ ┣ 📜constants.ts
- ┃ ┣ 📜functions.ts
- ┃ ┣ 📜hooks.ts
- ┃ ┗ 📜typeUtils.ts
- ┣ 📜App.test.tsx
- ┣ 📜App.tsx
- ┣ 📜index.tsx
- ┣ 📜react-app-env.d.ts
- ┣ 📜reportWebVitals.ts
- ┗ 📜setupTests.ts
+ ┃ ┣ 📜account.util.js
+ ┃ ┣ 📜constants.js
+ ┃ ┣ 📜formatUsersData.js
+ ┃ ┗ 📜storage.js
+ ┣ 📜App.css
+ ┣ 📜App.jsx
+ ┣ 📜App.test.js
+ ┣ 📜index.jsx
+ ┣ 📜reportWebVitals.js
+ ┗ 📜setupTests.js
 ```
 
 </details>

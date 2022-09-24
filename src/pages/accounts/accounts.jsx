@@ -15,12 +15,12 @@ const Accounts = () => {
 
   const [accountsData, usersData] = useQueries([
     {
-      queryKey: ['accounts'],
+      queryKey: ['account-list'],
       queryFn: () => Api.getAllAccounts(),
       staleTime: 180000,
     },
     {
-      queryKey: ['users'],
+      queryKey: ['user-list'],
       queryFn: () => Api.getAllUsers(),
       staleTime: 180000,
     },
@@ -41,17 +41,19 @@ const Accounts = () => {
 
   useEffect(() => {
     if (searchInput === '' && accountsData.isSuccess && usersData.isSuccess) {
-      setAccounts(
-        accountsData.data.map((account, i) => {
-          const { user_id } = account;
-          const userName = usersData.data?.find((el) => el.id === user_id)?.name;
-          return {
-            key: i,
-            ...formatAccountData(account),
-            user_name: <Link to={`/users/${user_id}`}>{userName}</Link>,
-          };
-        })
-      );
+      if (Array.isArray(accountsData.data)) {
+        setAccounts(
+          accountsData.data.map((account, i) => {
+            const { user_id } = account;
+            const userName = usersData.data?.find((el) => el.id === user_id)?.name;
+            return {
+              key: i,
+              ...formatAccountData(account),
+              user_name: <Link to={`/users/${user_id}`}>{userName}</Link>,
+            };
+          })
+        );
+      }
     }
   }, [accountsData, usersData, searchInput]);
 

@@ -69,6 +69,7 @@ const UserAddForm = () => {
         onClick={showModal}
         type="primary"
         style={{
+          width: 200,
           marginBottom: 16,
         }}
       >

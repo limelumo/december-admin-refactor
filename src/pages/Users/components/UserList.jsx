@@ -3,48 +3,61 @@ import 'antd/dist/antd.css';
 import { Input } from 'antd';
 import usersApi from 'api/usersApi';
 import UserAddForm from 'components/Users/UserAddForm';
+import useFormat from 'hooks/useFormat';
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { dataTotalCountState, usersDataState } from 'store/userList';
 import styled from 'styled-components';
-import { dataTotalCountState, usersDataState } from 'utils/userListStore';
 
 import User from './User';
 
 const UserList = () => {
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);
-  const [usersData, setUsersData] = useRecoilState(usersDataState);
+  const usersData = useRecoilValue(usersDataState);
 
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [result, setResult] = useState(null);
+
+  const { getFormatData } = useFormat(result);
 
   const { Search } = Input;
 
-  const { refetch: searchRefetch } = useQuery(
+  const { refetch, isSuccess, data } = useQuery(
     ['search-user-data', searchKeyword],
-    () => usersApi.getSearchData({ params: { q: searchKeyword } }),
+    () => usersApi.getSearchData({ q: searchKeyword }),
     {
-      onSuccess: (res) => {
-        setUsersData(res.data);
-        setDataTotalCount(res.headers['x-total-count']);
-        setSearchKeyword('');
-      },
       enabled: false,
       staleTime: 2000,
     }
   );
 
   useEffect(() => {
-    if (searchKeyword !== '') {
-      searchRefetch();
+    if (isSuccess) {
+      setResult(data);
     }
-  }, [searchKeyword, searchRefetch]);
+  }, [data, isSuccess]);
 
-  const handleUserSearch = (searchKeyword) => setSearchKeyword(searchKeyword);
+  useEffect(() => {
+    if (result !== null) {
+      getFormatData();
+      setSearchKeyword('');
+    }
+  }, [result]);
+
+  const handleUserSearch = () => refetch();
 
   return (
     <Section>
       <Wrapper>
-        <Search placeholder="검색어를 입력하세요" allowClear onSearch={handleUserSearch} style={{ width: 240 }} />
+        <Search
+          placeholder="검색어를 입력하세요"
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          onSearch={handleUserSearch}
+          style={{ width: 240 }}
+          allowClear
+        />
         <UserAddForm />
       </Wrapper>
 

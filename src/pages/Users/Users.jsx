@@ -1,14 +1,14 @@
 import usersApi from 'api/usersApi';
-import { useQueries } from 'react-query';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { formatUsersData } from 'utils/formatUsersData';
+import { useQuery } from 'react-query';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
+  accountsState,
   currentPageState,
-  dataPerPageState,
   dataTotalCountState,
   usersDataState,
   userSettingDataState,
-} from 'utils/userListStore';
+} from 'store/userList';
+import { formatUsersData } from 'utils/formatUsersData';
 
 import UserList from './components/UserList';
 import UserListPagination from './components/UserListPagination';
@@ -16,39 +16,55 @@ import UserMenu from './components/UserMenu';
 
 const Users = () => {
   const currentPage = useRecoilValue(currentPageState);
-  const dataPerPage = useRecoilValue(dataPerPageState);
+  const userSettingData = useRecoilValue(userSettingDataState);
+  const accountsData = useRecoilValue(accountsState);
 
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);
+  const setUserSettingData = useSetRecoilState(userSettingDataState);
+  const setAccountsData = useSetRecoilState(accountsState);
   const setUsersData = useSetRecoilState(usersDataState);
 
-  const [userSettingData, setUserSettingData] = useRecoilState(userSettingDataState);
+  const { data: accounts } = useQuery(['accounts'], usersApi.getAccountsData, {
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    onSuccess: (res) => setAccountsData(res.data),
+  });
 
-  useQueries([
-    {
-      queryKey: ['users', currentPage],
-      queryFn: () => usersApi.getUsersData({ params: { _limit: dataPerPage, _page: currentPage } }),
-      onSuccess: (res) => {
-        setDataTotalCount(res.headers['x-total-count']);
-        setUsersData(
-          res.data.map((user) => {
-            return {
-              ...formatUsersData(user),
-              is_active: userSettingData.find((el) => el.uuid === user.uuid)?.is_active, //TODO: 결과값 여러개 -> userData와 같은 uuid와 object 합치기..
-              is_staff: userSettingData.find((el) => el.uuid === user.uuid)?.is_staff, // TODO: 결과값 여러개 -> userData와 같은 uuid와 object 합치기..
-              allow_marketing_push: userSettingData.find((el) => el.uuid === user.uuid)?.allow_marketing_push, //TODO: 결과값 여러개 -> userData와 같은 uuid와 object 합치기..
-              // TODO: 보유계좌 수 : accounts에 user_id가 같은 갯수 count하여 설정
-            };
-          })
-        );
-      },
+  const { data: userSetting } = useQuery(['userSetting'], usersApi.getUserSettingData, {
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    // eslint-disable-next-line no-implicit-coercion
+    enabled: !!accounts,
+    onSuccess: (res) => setUserSettingData(res.data),
+  });
+
+  useQuery(['users', currentPage], () => usersApi.getUsersData({ _limit: 10, _page: currentPage }), {
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    // eslint-disable-next-line no-implicit-coercion
+    enabled: !!userSetting,
+    onSuccess: (res) => {
+      setDataTotalCount(res.headers['x-total-count']);
+
+      const accountsUserId = accountsData.map((el) => el.user_id);
+      const accountsMatched = accountsUserId.reduce((accu, curr) => {
+        accu[curr] = (accu[curr] || 0) + 1;
+        return accu;
+      }, {});
+
+      setUsersData(
+        res.data?.map((user) => {
+          return {
+            is_active: userSettingData?.find((el) => el.uuid === user.uuid)?.is_active.toString(),
+            is_staff: userSettingData?.find((el) => el.uuid === user.uuid)?.is_staff.toString(),
+            allow_marketing_push: userSettingData?.find((el) => el.uuid === user.uuid)?.allow_marketing_push.toString(),
+            account_count: accountsMatched[user.id],
+            ...formatUsersData(user),
+          };
+        })
+      );
     },
-    {
-      queryKey: ['userSetting'],
-      queryFn: () => usersApi.getUserSettingData(),
-      onSuccess: (res) => setUserSettingData(res.data),
-      keepPreviousData: true,
-    },
-  ]);
+  });
 
   return (
     <>

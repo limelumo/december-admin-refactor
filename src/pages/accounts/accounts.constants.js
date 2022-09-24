@@ -5,6 +5,41 @@ export const COLUMNS = [
     key: 'broker_name',
     width: 90,
     fixed: 'left',
+    filters: [
+      {
+        text: '증권사명',
+        value: '증권사명',
+        children: [
+          '유안타증권',
+          '현대증권',
+          '미래에셋증권',
+          '대우증권',
+          '삼성증권',
+          '한국투자증권',
+          '우리투자증권',
+          '교보증권',
+          '하이투자증권',
+          'HMC투자증권',
+          '키움증권',
+          '이베스트투자증권',
+          'SK증권',
+          '대신증권',
+          '아이엠투자증권',
+          '한화투자증권',
+          '하나대투자증권',
+          '동부증권',
+          '유진투자증권',
+          '카카오페이증권',
+          '메리츠종합금융증권',
+          '부국증권',
+          '신영증권',
+          'LIG투자증권',
+          '토스증권',
+        ].map((name) => ({ text: name, value: name })),
+      },
+    ],
+    filterMode: 'tree',
+    onFilter: (value, record) => record?.broker_name?.includes(value),
   },
   {
     title: '계좌번호',
@@ -29,18 +64,21 @@ export const COLUMNS = [
     dataIndex: 'assets',
     key: 'assets',
     width: 100,
+    sorter: (l, r) => Number(l?.assets?.split(',').join('')) - Number(r?.assets?.split(',').join('')),
   },
   {
     title: '입금금액',
     dataIndex: 'payments',
     key: 'payments',
     width: 100,
+    sorter: (l, r) => Number(l?.payments?.split(',').join('')) - Number(r?.payments?.split(',').join('')),
   },
   {
     title: '계좌개설일',
     dataIndex: 'created_at',
     key: 'created_at',
     width: 70,
+    sorter: (l, r) => Number(l?.created_at?.split('-').join('')) - Number(r?.created_at?.split('-').join('')),
   },
   {
     title: '계좌활성화여부',
@@ -48,6 +86,17 @@ export const COLUMNS = [
     key: 'is_active',
     width: 80,
     fixed: 'right',
+    filters: [
+      {
+        text: '활성화',
+        value: '활성화',
+      },
+      {
+        text: '비활성화',
+        value: '비활성화',
+      },
+    ],
+    onFilter: (value, record) => record?.is_active?.key === value,
   },
   {
     title: '계좌상태',
@@ -55,5 +104,28 @@ export const COLUMNS = [
     key: 'status',
     width: 80,
     fixed: 'right',
+    filters: [
+      {
+        text: '관리자확인필요',
+        value: '관리자확인필요',
+      },
+      {
+        text: '입금대기',
+        value: '입금대기',
+      },
+      {
+        text: '운용중',
+        value: '운용중',
+      },
+      {
+        text: '투자중지',
+        value: '투자중지',
+      },
+      {
+        text: '해지',
+        value: '해지',
+      },
+    ],
+    onFilter: (value, record) => record?.status?.includes(value),
   },
 ];

@@ -37,17 +37,13 @@ export const UserSetting = (props) => {
         />
       </DivWrap>
       <DivWrap>
-        <TitleWrap>관리자 여부</TitleWrap>
+        <TitleWrap>임직원 계좌 보유 여부</TitleWrap>
         <Switch
           defaultChecked={userSetting.is_staff}
           checkedChildren={<CheckOutlined/>}
           unCheckedChildren={<CloseOutlined/>}
           disabled={true}
         />
-      </DivWrap>
-      <DivWrap>
-        <TitleWrap>아이디 생성일</TitleWrap>
-        <span>{getDateFormat(userSetting.created_at)}</span>
       </DivWrap>
       <DivWrap>
         <TitleWrap>아이디 생성일</TitleWrap>

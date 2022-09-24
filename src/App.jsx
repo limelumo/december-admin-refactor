@@ -1,15 +1,13 @@
-import 'antd/dist/antd.css';
-import AuthRoute from 'pages/Login/AuthRoute';
-import Users from 'pages/Users/Users';
-
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import AccountDetail from './pages/AccountDetail/AccountDetail';
 import Accounts from './pages/accounts/accounts';
-import Login from './pages/Login/Login';
+import AuthRoute from 'pages/Login/AuthRoute';
+import Login from './pages/login/Login';
 import Main from './pages/Main';
 import UserDetail from './pages/userdetail/UserDetail';
+import Users from './pages/Users/Users';
 
 const queryClient = new QueryClient();
 

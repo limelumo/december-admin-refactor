@@ -28,9 +28,11 @@ const Login = () => {
       password,
     };
     const res = await axiosInstance.post('/login', enteredData);
+
     if (res.status === 200) {
-      setStorageItem('accessToken', 'Bearer ' + res.data.accessToken);
+      setStorageItem('accessToken', res.data.accessToken);
       setStorageItem('userName', res.data.user.name);
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
       navigate('/accounts');
     }
   };

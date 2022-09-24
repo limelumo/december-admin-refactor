@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useParams, Outlet } from 'react-router-dom';
-
-import Header from './Header';
 import { BankOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
-import logo from '../assets/logo_white.png';
 import usersApi from 'api/usersApi';
+import React, { useEffect, useState } from 'react';
+import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
 
+import logo from '../assets/logo_white.png';
+import Header from './Header';
 
 const { Footer, Sider } = Layout;
 

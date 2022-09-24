@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom';
 import Dashboard from 'components/Dashboard';
+import { Navigate } from 'react-router-dom';
 
 const AuthRoute = () => {
   const auth = Boolean(localStorage.getItem('accessToken'));

@@ -85,5 +85,3 @@ const AccountBreadCrumb = styled(AccountDetailBreadCrumbs)`
   align-items: center;
   justify-content: center;
 `;
-
-

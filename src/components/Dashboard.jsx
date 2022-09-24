@@ -1,29 +1,53 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { clearStorage } from '../utils/storage';
-import { PieChartOutlined, BankOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
+import { Link, useLocation, useParams, Outlet } from 'react-router-dom';
+
+import Header from './Header';
+import { BankOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import logo from '../assets/logo_white.png';
-import styled from 'styled-components';
+import usersApi from 'api/usersApi';
 
-const { Header, Content, Footer, Sider } = Layout;
 
-const Dashboard = (props) => {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const [pageName, setPageName] = useState('');
+const { Footer, Sider } = Layout;
+
+const Dashboard = () => {
+  const location = useLocation();
+  const pathName = location.pathname;
+  const detailPath = useParams();
+  const userDetail = detailPath.user_id;
   const [collapsed, setCollapsed] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [pageName, setPageName] = useState('');
 
-  // useEffect(()=>{
-  //   if(pathname === 'users') {
-  //     setPageName('사용자 목록')
-  //   }
-  // });
-
-  const handleLogout = () => {
-    clearStorage();
-    navigate('/');
+  const hadlePageName = () => {
+    if (pathName === '/accounts') {
+      return '계좌 목록';
+    }
+    if (pathName === '/users') {
+      return '사용자 목록';
+    }
   };
+
+  const hadleUserDetailPageName = async (id) => {
+    const userInfo = await usersApi.getUserDataByID(id);
+    return userInfo;
+  };
+
+  useEffect(() => {
+    const name = localStorage.getItem('userName');
+    setUserName(name);
+
+    if (Boolean(userDetail)) {
+      hadleUserDetailPageName(userDetail)
+        .then((response) => response)
+        .then((data) => {
+          const page = data.name + ' 님의 계좌 목록';
+          setPageName(page);
+        });
+    }
+    const page = hadlePageName();
+    setPageName(page);
+  }, [location]);
 
   return (
     <Layout
@@ -35,53 +59,22 @@ const Dashboard = (props) => {
         <div className="logo" style={{ padding: 24 }}>
           <img src={logo} alt="logo" />
         </div>
-        <Menu theme="dark" defaultSelectedKeys={['2']} mode="inline" onClick={(info)=>{
-          setPageName(info.key)
-        }}>
-          <Menu.Item key="1" name="dashboard">
-            <PieChartOutlined />
-            <span>대시보드</span>
-            <Link to="/" />
-          </Menu.Item>
-          <Menu.Item key="2" name="accounts">
+        <Menu theme="dark" defaultSelectedKeys={['accounts']} mode="inline">
+          <Menu.Item key="accounts">
             <BankOutlined />
             <span>계좌 목록</span>
             <Link to="/accounts" />
           </Menu.Item>
-          <Menu.Item key="3" name="users">
+          <Menu.Item key="users">
             <UserOutlined />
             <span>사용자 목록</span>
             <Link to="/users" />
           </Menu.Item>
-          <Logout onClick={handleLogout}>
-            <LogoutOutlined />
-            <span>로그아웃</span>
-          </Logout>
         </Menu>
       </Sider>
       <Layout className="site-layout">
-        <Header
-          className="site-layout-background"
-          style={{
-            padding: 0,
-          }}
-          title={pageName}
-        />
-        <Content
-          style={{
-            margin: '16px',
-          }}
-        >
-          <div
-            className="site-layout-background"
-            style={{
-              padding: 24,
-              minHeight: 360,
-            }}
-          >
-            {props.children}
-          </div>
-        </Content>
+        <Header userName={userName} pageName={pageName} />
+        <Outlet />
         <Footer
           style={{
             textAlign: 'center',
@@ -95,23 +88,3 @@ const Dashboard = (props) => {
 };
 
 export default Dashboard;
-
-const Logout = styled.button`
-  width: 100%;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  padding-left: 14px;
-  outline: 0;
-  border: 0;
-  background-color: transparent;
-  cursor: pointer;
-
-  span {
-    padding-left: 10px;
-  }
-
-  &:hover {
-    color: #fff;
-  }
-`;

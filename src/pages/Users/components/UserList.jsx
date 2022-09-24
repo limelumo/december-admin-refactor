@@ -55,7 +55,7 @@ const UserList = () => {
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
           onSearch={handleUserSearch}
-          style={{ width: 240 }}
+          style={{ width: 280 }}
           allowClear
         />
         <UserAddForm />

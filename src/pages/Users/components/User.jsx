@@ -40,9 +40,9 @@ const User = (user) => {
 
   const renderName = (user) => (
     <EditBtnWrapper>
-      <button id={user.id} onClick={() => navigate(`/users/${user.id}`)}>
+      <NameButton id={user.id} onClick={() => navigate(`/users/${user.id}`)}>
         {user.name}
-      </button>
+      </NameButton>
       <EditButton onClick={() => setIsEdit(true)}>수정</EditButton>
     </EditBtnWrapper>
   );
@@ -86,7 +86,7 @@ const Tr = styled.tr`
   vertical-align: inherit;
 
   &:hover {
-    background-color: #e2e1e1;
+    background-color: #f1eaea;
   }
 `;
 
@@ -109,8 +109,16 @@ const EditBtnWrapper = styled.span`
   }
 `;
 
+const NameButton = styled.button`
+  &:hover {
+    font-weight: bold;
+    font-size: 1.02em;
+    color: #1890ff;
+  }
+`;
+
 const EditButton = styled.button`
-  color: blue;
+  color: #1890ff;
   text-decoration: underline;
   cursor: pointer;
 `;

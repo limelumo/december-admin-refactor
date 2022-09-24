@@ -2,38 +2,41 @@ import 'antd/dist/antd.css';
 
 import { PageHeader, Select } from 'antd';
 import usersApi from 'api/usersApi';
+import useFormat from 'hooks/useFormat';
 import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { dataTotalCountState, usersDataState } from 'utils/userListStore';
 
 const UserMenu = () => {
-  const setDataTotalCount = useSetRecoilState(dataTotalCountState);
-  const setUsersData = useSetRecoilState(usersDataState);
-
   const [config, setConfig] = useState('');
+  const [result, setResult] = useState(null);
+
+  const { getFormatData } = useFormat(result);
 
   const { Option, OptGroup } = Select;
 
-  const { refetch: filterRefetch } = useQuery(
-    ['filter-user-data', config],
-    () => usersApi.getSearchData({ params: config }),
-    {
-      onSuccess: (res) => {
-        setUsersData(res.data);
-        setDataTotalCount(res.headers['x-total-count']);
-      },
-      enabled: false,
-      staleTime: 2000,
-    }
-  );
+  const { refetch, isSuccess, data } = useQuery(['filter-user-data', config], () => usersApi.getSearchData(config), {
+    enabled: false,
+    staleTime: 2000,
+  });
 
   useEffect(() => {
     if (config !== '') {
-      filterRefetch();
+      refetch();
     }
-  }, [config, filterRefetch]);
+  }, [config, refetch]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setResult(data);
+    }
+  }, [data, isSuccess]);
+
+  useEffect(() => {
+    if (result !== null) {
+      getFormatData();
+    }
+  }, [result]);
 
   const handleChange = (value) => {
     if (value === '활성') {

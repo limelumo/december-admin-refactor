@@ -3,39 +3,49 @@ import 'antd/dist/antd.css';
 import { Input } from 'antd';
 import usersApi from 'api/usersApi';
 import UserAddForm from 'components/Users/UserAddForm';
-import React, { useState } from 'react';
+import useFormat from 'hooks/useFormat';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { dataTotalCountState, usersDataState } from 'store/userList';
 import styled from 'styled-components';
-import { formatSearchedData } from 'utils/formatUsersData';
-import { dataTotalCountState, usersDataState } from 'utils/userListStore';
 
 import User from './User';
 
 const UserList = () => {
   const setDataTotalCount = useSetRecoilState(dataTotalCountState);
-  const [usersData, setUsersData] = useRecoilState(usersDataState);
+  const usersData = useRecoilValue(usersDataState);
 
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [result, setResult] = useState(null);
+
+  const { getFormatData } = useFormat(result);
 
   const { Search } = Input;
 
-  const { refetch: searchRefetch } = useQuery(
+  const { refetch, isSuccess, data } = useQuery(
     ['search-user-data', searchKeyword],
     () => usersApi.getSearchData({ q: searchKeyword }),
     {
-      onSuccess: (res) => {
-        // TODO: 추가 값 넣기?
-        setDataTotalCount(res.headers['x-total-count']);
-        setUsersData(res.data.map((user) => formatSearchedData(user)));
-        setSearchKeyword('');
-      },
       enabled: false,
       staleTime: 2000,
     }
   );
 
-  const handleUserSearch = (searchKeyword) => searchRefetch();
+  useEffect(() => {
+    if (isSuccess) {
+      setResult(data);
+    }
+  }, [data, isSuccess]);
+
+  useEffect(() => {
+    if (result !== null) {
+      getFormatData();
+      setSearchKeyword('');
+    }
+  }, [result]);
+
+  const handleUserSearch = () => refetch();
 
   return (
     <Section>

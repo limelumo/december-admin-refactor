@@ -48,7 +48,7 @@ const Accounts = () => {
           return {
             key: i,
             ...formatAccountData(account),
-            user_name: <Link to={`/user/${user_id}`}>{userName}</Link>,
+            user_name: <Link to={`/users/${user_id}`}>{userName}</Link>,
           };
         })
       );
@@ -65,7 +65,7 @@ const Accounts = () => {
           return {
             key: i,
             ...formatAccountData(account),
-            user_name: <Link to={`/user/${user_id}`}>{userName}</Link>,
+            user_name: <Link to={`/users/${user_id}`}>{userName}</Link>,
           };
         })
       );

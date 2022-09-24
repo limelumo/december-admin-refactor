@@ -5,7 +5,7 @@ const userAPI = {
     const { data } = await axiosInstance.get('/users');
     return data;
   },
-  getOneUsersById: async ({ id }) => {
+  getOneUsersById: async (id) => {
     const { data } = await axiosInstance.get(`/users/${id}`);
     return data;
   },
@@ -13,7 +13,7 @@ const userAPI = {
     const { data } = await axiosInstance.get('/usersetting');
     return data;
   },
-  updateUser: async ({ id }) => {
+  updateUser: async (id) => {
     const { data } = await axiosInstance.patch(`/users/${id}`);
     return data;
   },

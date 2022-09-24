@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { clearStorage } from '../utils/storage';
 
 const token = localStorage.getItem('accessToken');

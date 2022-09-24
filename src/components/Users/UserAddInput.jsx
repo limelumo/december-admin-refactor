@@ -2,8 +2,8 @@ import 'antd/dist/antd.css';
 
 import { Input, Switch } from 'antd';
 import { useRecoilState } from 'recoil';
+import { userInfoState } from 'store/userList';
 import styled from 'styled-components';
-import { userInfoState } from 'utils/userListStore';
 
 const UserAddInput = ({ type, label, name, required, inputData }) => {
   const [newUserInfo, setNewUserInfo] = useRecoilState(userInfoState);

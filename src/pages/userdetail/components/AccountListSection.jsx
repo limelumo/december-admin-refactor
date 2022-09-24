@@ -1,4 +1,4 @@
-import accountsAPI from 'apis/accountAPI';
+import Api from 'api/api';
 import React from 'react';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
@@ -10,7 +10,7 @@ const AccountListSection = ({ userId }) => {
   const { data: accounts } = useQuery(
     ['accounts', userId],
     async () => {
-      const data = await accountsAPI.getAllAccountByUserId({ userId });
+      const data = await Api.getAllAccountByUserId(userId);
       return data?.map((json) => new Account(json));
     },
     {

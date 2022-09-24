@@ -1,4 +1,4 @@
-import userAPI from 'apis/userAPI';
+import usersApi from 'api/usersApi';
 import React from 'react';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
@@ -10,7 +10,7 @@ const UserInfoSection = ({ userId }) => {
   const { data: user } = useQuery(
     ['users', userId],
     async () => {
-      const data = await userAPI.getOneUsersById({ id: userId });
+      const data = await usersApi.getUserDataByID(userId);
       return new User(data);
     },
     {

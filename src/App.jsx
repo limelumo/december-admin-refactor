@@ -3,8 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import AccountDetail from './pages/AccountDetail/AccountDetail';
 import Accounts from './pages/accounts/accounts';
-import AuthRoute from 'pages/Login/AuthRoute';
-import Login from './pages/login/Login';
+import AuthRoute from './pages/Login/AuthRoute';
+import Login from './pages/Login/Login';
 import Main from './pages/Main';
 import UserDetail from './pages/userdetail/UserDetail';
 import Users from './pages/Users/Users';

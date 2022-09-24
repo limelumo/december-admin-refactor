@@ -10,7 +10,6 @@ import styled from 'styled-components';
 const User = (user) => {
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState(user.name);
-
   const targetId = user.id;
 
   const navigate = useNavigate();
@@ -28,7 +27,10 @@ const User = (user) => {
   const editUser = async (targetId) => await axios.patch(`/users/${targetId}`, { name: name });
 
   const { mutate: editMutate } = useMutation(editUser, {
-    onSuccess: () => queryClient.invalidateQueries('users'),
+    onSuccess: () => {
+      queryClient.invalidateQueries('users');
+      setIsEdit(false);
+    },
     enabled: false,
   });
 
@@ -37,7 +39,6 @@ const User = (user) => {
   const handleOnKeyPress = (e, id) => {
     if (e.key === 'Enter') {
       editMutate(targetId);
-      setIsEdit(false);
     }
   };
 
@@ -56,9 +57,9 @@ const User = (user) => {
 
   return (
     <>
-      <Tr key={user.id}>
+      <Tr>
         <Td>{isEdit ? renderNameEdit : renderName(user)}</Td>
-        <Td onClick={() => navigate('/id')}>{user.account_count}</Td>
+        <Td>{user.account_count}</Td>
         <Td>{user.email}</Td>
         <Td>{user.gender_origin}</Td>
         <Td>{user.birth_date}</Td>

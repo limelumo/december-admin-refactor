@@ -3,11 +3,6 @@ import { axiosInstance } from './axios-instance';
 const usersApi = {
   getUsersData: async (params = {}) => await axiosInstance.get('/users', { params }),
 
-  getUserDataByID: async (userId) => {
-    const { data } = await axiosInstance.get(`/users/${userId}`);
-    return data;
-  },
-
   getUserSettingData: async () => await axiosInstance.get('/userSetting'),
 
   getAccountsData: async () => await axiosInstance.get('/accounts'),

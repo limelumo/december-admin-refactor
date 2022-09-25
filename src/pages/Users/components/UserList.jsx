@@ -41,6 +41,7 @@ const UserList = () => {
   useEffect(() => {
     if (result !== null) {
       getFormatData();
+      setDataTotalCount(result.length);
       setSearchKeyword('');
     }
   }, [result]);
@@ -111,6 +112,7 @@ const ListTable = styled.div`
     border-collapse: separate;
     text-align: center;
     border-spacing: 0;
+    background-color: white;
   }
 `;
 

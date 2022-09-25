@@ -5,9 +5,13 @@ import usersApi from 'api/usersApi';
 import useFormat from 'hooks/useFormat';
 import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
+import { useSetRecoilState } from 'recoil';
+import { dataTotalCountState } from 'store/userList';
 import styled from 'styled-components';
 
 const UserMenu = () => {
+  const setDataTotalCount = useSetRecoilState(dataTotalCountState);
+
   const [config, setConfig] = useState('');
   const [result, setResult] = useState(null);
 
@@ -35,6 +39,7 @@ const UserMenu = () => {
   useEffect(() => {
     if (result !== null) {
       getFormatData();
+      setDataTotalCount(result.length);
     }
   }, [result]);
 

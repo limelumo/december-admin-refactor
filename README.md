@@ -11,7 +11,7 @@
 
 # 배포 링크
 
-- [링크](https://pre-onboarding-assignment-week-4-1-team-3-hsgj.vercel.app/)
+- [링크](https://pre-onboarding-assignment-week-4-1-team-3-hsgj-7ng5woavd.vercel.app)
 
 <br>
 

@@ -1,148 +1,265 @@
 import 'antd/dist/antd.css';
 
-import { Input } from 'antd';
+import { CheckOutlined, CloseOutlined, DeleteFilled } from '@ant-design/icons';
+import { Form, Input, Popconfirm, Table } from 'antd';
 import usersApi from 'api/usersApi';
-import UserAddForm from 'components/Users/UserAddForm';
-import useFormat from 'hooks/useFormat';
-import React, { useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { dataTotalCountState, usersDataState } from 'store/userList';
-import styled from 'styled-components';
+import { usersDataState } from 'store/userList';
 
-import User from './User';
+const EditableContext = React.createContext(null);
 
-const UserList = () => {
-  const setDataTotalCount = useSetRecoilState(dataTotalCountState);
-  const usersData = useRecoilValue(usersDataState);
-
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [result, setResult] = useState(null);
-
-  const { getFormatData } = useFormat(result);
-
-  const { Search } = Input;
-
-  const { refetch, isSuccess, data } = useQuery(
-    ['search-user-data', searchKeyword],
-    () => usersApi.getSearchData({ q: searchKeyword }),
-    {
-      enabled: false,
-      staleTime: 2000,
-    }
-  );
-
-  useEffect(() => {
-    if (isSuccess) {
-      setResult(data);
-    }
-  }, [data, isSuccess]);
-
-  useEffect(() => {
-    if (result !== null) {
-      getFormatData();
-      setDataTotalCount(result.length);
-      setSearchKeyword('');
-    }
-  }, [result]);
-
-  const handleUserSearch = () => refetch();
+const EditableRow = ({ index, ...props }) => {
+  const [form] = Form.useForm();
 
   return (
-    <Section>
-      <Wrapper>
-        <Search
-          placeholder="검색어를 입력하세요"
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-          onSearch={handleUserSearch}
-          style={{ width: 280 }}
-          allowClear
-        />
-        <UserAddForm />
-      </Wrapper>
-
-      <ListTable>
-        <table>
-          <Thead>
-            <tr>
-              <th>고객명</th>
-              <th>보유 계좌수</th>
-              <th>이메일</th>
-              <th>성별코드</th>
-              <th>생년월일</th>
-              <th>휴대폰 번호</th>
-              <th>최근 로그인</th>
-              <th>혜택 수신 동의</th>
-              <th>활성화</th>
-              <th>가입일</th>
-              <th>삭제</th>
-            </tr>
-          </Thead>
-
-          <Tbody>
-            {usersData.map((user) => (
-              <User key={user.id} {...user} />
-            ))}
-          </Tbody>
-        </table>
-      </ListTable>
-    </Section>
+    <Form form={form} component={false}>
+      <EditableContext.Provider value={form}>
+        <tr {...props} />
+      </EditableContext.Provider>
+    </Form>
   );
 };
 
-const Section = styled.section`
-  padding: 0 24px;
-`;
+const EditableCell = ({ title, editable, children, dataIndex, record, handleSave, ...restProps }) => {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef(null);
+  const form = useContext(EditableContext);
 
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ListTable = styled.div`
-  max-width: 100%;
-  position: relative;
-  transition: opacity 0.3s;
-  user-select: none;
-
-  table {
-    width: 100%;
-    table-layout: auto;
-    border-collapse: separate;
-    text-align: center;
-    border-spacing: 0;
-    background-color: white;
-  }
-`;
-
-const Thead = styled.thead`
-  background: #fafafa;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.3s ease;
-  vertical-align: middle;
-  overflow-wrap: break-word;
-
-  tr {
-    display: table-row;
-    vertical-align: inherit;
-    border-color: inherit;
-
-    th {
-      color: rgba(0, 0, 0, 0.85);
-      font-weight: 500;
-      text-align: center;
-      padding: 16px;
-      border-right: 1px solid #f0f0f0;
+  useEffect(() => {
+    if (editing) {
+      inputRef.current.focus();
     }
+  }, [editing]);
+
+  const toggleEdit = () => {
+    setEditing(!editing);
+    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
+  };
+
+  const save = async () => {
+    try {
+      const values = await form.validateFields();
+
+      toggleEdit();
+      handleSave({ ...record, ...values });
+    } catch (errInfo) {
+      console.error('Save failed:', errInfo);
+    }
+  };
+
+  let childNode = children;
+
+  if (editable) {
+    childNode = editing ? (
+      <Form.Item
+        style={{ margin: 0 }}
+        name={dataIndex}
+        rules={[
+          {
+            required: true,
+            message: `${title} is required.`,
+          },
+        ]}
+      >
+        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+      </Form.Item>
+    ) : (
+      <div className="editable-cell-value-wrap" onClick={toggleEdit}>
+        {children}
+      </div>
+    );
   }
-`;
 
-const Tbody = styled.tbody`
-  display: table-row-group;
-  vertical-align: middle;
-  border-color: inherit;
-  overflow-wrap: break-word;
-`;
+  return <td {...restProps}>{childNode}</td>;
+};
 
-export default React.memo(UserList);
+const UserList = () => {
+  const dataSource = useRecoilValue(usersDataState);
+
+  const [count, setCount] = useState(2);
+
+  const queryClient = useQueryClient();
+
+  const { mutate: removeMutate } = useMutation((targetId) => usersApi.removeUser(targetId), {
+    onSuccess: () => queryClient.invalidateQueries('users'),
+    enabled: false,
+  });
+
+  const handleDelete = (targetId) => removeMutate(targetId);
+
+  const handleSave = (row) => {
+    const newData = [...dataSource];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    // setDataSource(newData);
+  };
+
+  const DEFAULT_COLUMNS = [
+    {
+      title: '고객명',
+      dataIndex: 'name',
+      key: 'name',
+      editable: true,
+      align: 'center',
+    },
+    {
+      title: '보유 계좌',
+      dataIndex: 'account_count',
+      key: 'account_count',
+      editable: true,
+      align: 'center',
+    },
+    {
+      title: '임직원 계좌',
+      dataIndex: 'is_staff',
+      key: 'is_staff',
+      align: 'center',
+      render: (_, record) =>
+        record.is_staff === 'true' ? (
+          <CheckOutlined style={{ color: 'green' }} />
+        ) : (
+          <CloseOutlined style={{ color: 'salmon' }} />
+        ),
+      filters: [
+        {
+          text: '임직원 계좌 보유',
+          value: 'true',
+        },
+        {
+          text: '임직원 계좌 미보유',
+          value: 'false',
+        },
+      ],
+      onFilter: (value, record) => record.is_staff === value,
+    },
+    {
+      title: '이메일',
+      dataIndex: 'email',
+      key: 'email',
+      editable: true,
+      align: 'center',
+    },
+    {
+      title: '성별코드',
+      dataIndex: 'gender_origin',
+      key: 'gender_origin',
+      editable: true,
+      align: 'center',
+    },
+    {
+      title: '생년월일',
+      dataIndex: 'birth_date',
+      key: 'birth_date',
+      editable: true,
+      align: 'center',
+    },
+    {
+      title: '휴대폰 번호',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
+      editable: true,
+      align: 'center',
+    },
+    {
+      title: '최근 로그인',
+      dataIndex: 'last_login',
+      key: 'last_login',
+      align: 'center',
+    },
+    {
+      title: '혜택 수신 동의',
+      dataIndex: 'allow_marketing_push',
+      key: 'allow_marketing_push',
+      align: 'center',
+      render: (_, record) =>
+        record.allow_marketing_push === 'true' ? (
+          <CheckOutlined style={{ color: 'green' }} />
+        ) : (
+          <CloseOutlined style={{ color: 'salmon' }} />
+        ),
+    },
+    {
+      title: '활성화',
+      dataIndex: 'is_active',
+      key: 'is_active',
+      align: 'center',
+      render: (_, record) =>
+        record.is_active === 'true' ? (
+          <CheckOutlined style={{ color: 'green' }} />
+        ) : (
+          <CloseOutlined style={{ color: 'salmon' }} />
+        ),
+      filters: [
+        {
+          text: '활성화 고객',
+          value: 'true',
+        },
+        {
+          text: '비활성화 고객',
+          value: 'false',
+        },
+      ],
+      onFilter: (value, record) => record.is_active === value,
+    },
+    {
+      title: '가입일',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      editable: true,
+      align: 'center',
+    },
+    {
+      title: '삭제',
+      dataIndex: 'operation',
+      align: 'center',
+      render: (_, record) =>
+        dataSource.length >= 1 ? (
+          <Popconfirm title="삭제하시겠습니까?" onConfirm={() => handleDelete(record.id)}>
+            <DeleteFilled style={{ fontSize: '16px' }} />
+          </Popconfirm>
+        ) : null,
+    },
+  ];
+
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
+  const columns = DEFAULT_COLUMNS.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleSave,
+      }),
+    };
+  });
+
+  return (
+    <Table
+      components={components}
+      rowClassName={() => 'editable-row'}
+      bordered
+      dataSource={dataSource}
+      columns={columns}
+      style={{ margin: 24, textAlign: 'center' }}
+    />
+  );
+};
+
+export default UserList;

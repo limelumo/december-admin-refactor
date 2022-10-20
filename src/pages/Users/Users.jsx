@@ -1,5 +1,8 @@
+import 'antd/dist/antd.css';
+
+import { Button, PageHeader } from 'antd';
 import usersApi from 'api/usersApi';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   accountsState,
@@ -8,11 +11,10 @@ import {
   usersDataState,
   userSettingDataState,
 } from 'store/userList';
+import styled from 'styled-components';
 import { formatUsersData } from 'utils/formatUsersData';
 
 import UserList from './components/UserList';
-import UserListPagination from './components/UserListPagination';
-import UserMenu from './components/UserMenu';
 
 const Users = () => {
   const currentPage = useRecoilValue(currentPageState);
@@ -23,6 +25,8 @@ const Users = () => {
   const setUserSettingData = useSetRecoilState(userSettingDataState);
   const setAccountsData = useSetRecoilState(accountsState);
   const setUsersData = useSetRecoilState(usersDataState);
+
+  const queryClient = useQueryClient();
 
   const { data: accounts } = useQuery(['accounts'], usersApi.getAccountsData, {
     refetchOnWindowFocus: false,
@@ -38,7 +42,8 @@ const Users = () => {
     onSuccess: (res) => setUserSettingData(res.data),
   });
 
-  useQuery(['users', currentPage], () => usersApi.getUsersData({ _limit: 10, _page: currentPage }), {
+  // useQuery(['users', currentPage], () => usersApi.getUsersData({ _limit: 10, _page: currentPage }), {
+  useQuery(['users'], () => usersApi.getUsersData(), {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
     // eslint-disable-next-line no-implicit-coercion
@@ -66,13 +71,50 @@ const Users = () => {
     },
   });
 
+  const { mutate: addMutate } = useMutation((newUserInfo) => usersApi.addNewUserData(newUserInfo), {
+    onSuccess: () => queryClient.invalidateQueries('users'),
+    enabled: false,
+  });
+
+  const handleAdd = () => {
+    const newUserInfo = {
+      key: count,
+      name: `홍길동 ${count}`,
+      account_count: 0,
+      email: `abc${count}@test.com`,
+      password: `test${count}`,
+      gender_origin: 0,
+      birth_date: new Date().toISOString(),
+      phone_number: '010-0000-0000',
+      last_login: new Date().toISOString(),
+      allow_marketing_push: 'false',
+      is_active: 'false',
+      created_at: new Date().toISOString(),
+    };
+
+    addMutate(newUserInfo);
+    setCount(count + 1);
+  };
+
   return (
     <>
-      <UserMenu />
+      <Section>
+        <PageHeader title="고객 리스트" onBack={() => window.location.reload()} />
+        <Button onClick={handleAdd} type="primary" style={{ marginRight: 24 }}>
+          새로운 고객 추가
+        </Button>
+      </Section>
+
       <UserList />
-      <UserListPagination />
     </>
   );
 };
+
+const Section = styled.section`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+`;
 
 export default Users;

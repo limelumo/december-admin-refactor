@@ -2,6 +2,7 @@ import 'antd/dist/antd.css';
 
 import { Button, PageHeader } from 'antd';
 import usersApi from 'api/usersApi';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
@@ -25,6 +26,8 @@ const Users = () => {
   const setUserSettingData = useSetRecoilState(userSettingDataState);
   const setAccountsData = useSetRecoilState(accountsState);
   const setUsersData = useSetRecoilState(usersDataState);
+
+  const [count, setCount] = useState(2);
 
   const queryClient = useQueryClient();
 

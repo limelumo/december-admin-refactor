@@ -78,8 +78,6 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
 const UserList = () => {
   const dataSource = useRecoilValue(usersDataState);
 
-  const [count, setCount] = useState(2);
-
   const queryClient = useQueryClient();
 
   const { mutate: removeMutate } = useMutation((targetId) => usersApi.removeUser(targetId), {
@@ -104,21 +102,18 @@ const UserList = () => {
     {
       title: '고객명',
       dataIndex: 'name',
-      key: 'name',
       editable: true,
       align: 'center',
     },
     {
       title: '보유 계좌',
       dataIndex: 'account_count',
-      key: 'account_count',
       editable: true,
       align: 'center',
     },
     {
       title: '임직원 계좌',
       dataIndex: 'is_staff',
-      key: 'is_staff',
       align: 'center',
       render: (_, record) =>
         record.is_staff === 'true' ? (
@@ -141,41 +136,35 @@ const UserList = () => {
     {
       title: '이메일',
       dataIndex: 'email',
-      key: 'email',
       editable: true,
       align: 'center',
     },
     {
       title: '성별코드',
       dataIndex: 'gender_origin',
-      key: 'gender_origin',
       editable: true,
       align: 'center',
     },
     {
       title: '생년월일',
       dataIndex: 'birth_date',
-      key: 'birth_date',
       editable: true,
       align: 'center',
     },
     {
       title: '휴대폰 번호',
       dataIndex: 'phone_number',
-      key: 'phone_number',
       editable: true,
       align: 'center',
     },
     {
       title: '최근 로그인',
       dataIndex: 'last_login',
-      key: 'last_login',
       align: 'center',
     },
     {
       title: '혜택 수신 동의',
       dataIndex: 'allow_marketing_push',
-      key: 'allow_marketing_push',
       align: 'center',
       render: (_, record) =>
         record.allow_marketing_push === 'true' ? (
@@ -187,7 +176,6 @@ const UserList = () => {
     {
       title: '활성화',
       dataIndex: 'is_active',
-      key: 'is_active',
       align: 'center',
       render: (_, record) =>
         record.is_active === 'true' ? (
@@ -210,7 +198,6 @@ const UserList = () => {
     {
       title: '가입일',
       dataIndex: 'created_at',
-      key: 'created_at',
       editable: true,
       align: 'center',
     },
@@ -254,6 +241,7 @@ const UserList = () => {
     <Table
       components={components}
       rowClassName={() => 'editable-row'}
+      rowKey={(render) => render.id}
       bordered
       dataSource={dataSource}
       columns={columns}

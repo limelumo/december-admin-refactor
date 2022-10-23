@@ -1,100 +1,22 @@
 import 'antd/dist/antd.css';
 
-import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons';
-import { Form, Input, Popconfirm, Table } from 'antd';
+import { CheckOutlined, CloseOutlined, DeleteFilled } from '@ant-design/icons';
+import { Popconfirm, Table } from 'antd';
 import usersApi from 'api/usersApi';
-import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { usersDataState } from 'store/userList';
 
-const EditableContext = React.createContext(null);
-
-const EditableRow = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-
-const EditableCell = ({ title, editable, children, dataIndex, record, handleSave, ...restProps }) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
-  const form = useContext(EditableContext);
-
-  useEffect(() => {
-    if (editing) {
-      inputRef.current.focus();
-    }
-  }, [editing]);
-
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
-  };
-
-  const save = async () => {
-    try {
-      const name = await form.validateFields();
-
-      toggleEdit();
-      handleSave(record.id, name);
-    } catch (errInfo) {
-      console.error('Save failed:', errInfo);
-    }
-  };
-
-  let childNode = children;
-
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{ margin: 0 }}
-        name={dataIndex}
-        rules={[
-          {
-            required: true,
-            message: `${title}을 적어주세요.`,
-          },
-        ]}
-      >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-      </Form.Item>
-    ) : (
-      <>
-        <EditFilled style={{ marginRight: '12px' }} onClick={toggleEdit} />
-        <Link to={`/users/${record.id}`}>{children}</Link>
-      </>
-    );
-  }
-
-  return <td {...restProps}>{childNode}</td>;
-};
+import { EditableCell, EditableRow } from './UserEdit';
 
 const UserList = () => {
   const dataSource = useRecoilValue(usersDataState);
-
   const queryClient = useQueryClient();
 
   const { mutate: removeMutate } = useMutation((targetId) => usersApi.removeUser(targetId), {
     onSuccess: () => queryClient.invalidateQueries('users'),
     enabled: false,
   });
-
-  const { mutate: editMutate } = useMutation(() => usersApi.updateUserData(), {
-    onMutate: (variable) => console.log('onMutate', variable),
-    onSuccess: () => queryClient.invalidateQueries('users'),
-    enabled: false,
-  });
-
-  const handleSave = (targetId, value) => {
-    editMutate({ targetId, value });
-  };
 
   const handleDelete = (targetId) => removeMutate(targetId);
 
@@ -219,7 +141,6 @@ const UserList = () => {
         editable: col.editable,
         dataIndex: col.dataIndex,
         title: col.title,
-        handleSave,
       }),
     };
   });

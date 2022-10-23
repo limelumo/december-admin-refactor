@@ -1,18 +1,18 @@
 import 'antd/dist/antd.css';
 
-import { CheckOutlined, CloseOutlined, DeleteFilled } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons';
 import { Form, Input, Popconfirm, Table } from 'antd';
 import usersApi from 'api/usersApi';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { Link } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import { usersDataState } from 'store/userList';
 
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
   const [form] = Form.useForm();
-
   return (
     <Form form={form} component={false}>
       <EditableContext.Provider value={form}>
@@ -40,10 +40,10 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
 
   const save = async () => {
     try {
-      const values = await form.validateFields();
+      const name = await form.validateFields();
 
       toggleEdit();
-      handleSave({ ...record, ...values });
+      handleSave(record.id, name);
     } catch (errInfo) {
       console.error('Save failed:', errInfo);
     }
@@ -59,16 +59,17 @@ const EditableCell = ({ title, editable, children, dataIndex, record, handleSave
         rules={[
           {
             required: true,
-            message: `${title} is required.`,
+            message: `${title}을 적어주세요.`,
           },
         ]}
       >
         <Input ref={inputRef} onPressEnter={save} onBlur={save} />
       </Form.Item>
     ) : (
-      <div className="editable-cell-value-wrap" onClick={toggleEdit}>
-        {children}
-      </div>
+      <>
+        <EditFilled style={{ marginRight: '12px' }} onClick={toggleEdit} />
+        <Link to={`/users/${record.id}`}>{children}</Link>
+      </>
     );
   }
 
@@ -85,30 +86,28 @@ const UserList = () => {
     enabled: false,
   });
 
-  const handleDelete = (targetId) => removeMutate(targetId);
+  const { mutate: editMutate } = useMutation(() => usersApi.updateUserData(), {
+    onMutate: (variable) => console.log('onMutate', variable),
+    onSuccess: () => queryClient.invalidateQueries('users'),
+    enabled: false,
+  });
 
-  const handleSave = (row) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    // setDataSource(newData);
+  const handleSave = (targetId, value) => {
+    editMutate({ targetId, value });
   };
 
-  const DEFAULT_COLUMNS = [
+  const handleDelete = (targetId) => removeMutate(targetId);
+
+  const defaultColumns = [
     {
       title: '고객명',
       dataIndex: 'name',
+      align: 'left',
       editable: true,
-      align: 'center',
     },
     {
       title: '보유 계좌',
       dataIndex: 'account_count',
-      editable: true,
       align: 'center',
     },
     {
@@ -136,25 +135,21 @@ const UserList = () => {
     {
       title: '이메일',
       dataIndex: 'email',
-      editable: true,
       align: 'center',
     },
     {
       title: '성별코드',
       dataIndex: 'gender_origin',
-      editable: true,
       align: 'center',
     },
     {
       title: '생년월일',
       dataIndex: 'birth_date',
-      editable: true,
       align: 'center',
     },
     {
       title: '휴대폰 번호',
       dataIndex: 'phone_number',
-      editable: true,
       align: 'center',
     },
     {
@@ -198,7 +193,6 @@ const UserList = () => {
     {
       title: '가입일',
       dataIndex: 'created_at',
-      editable: true,
       align: 'center',
     },
     {
@@ -214,14 +208,7 @@ const UserList = () => {
     },
   ];
 
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columns = DEFAULT_COLUMNS.map((col) => {
+  const columns = defaultColumns.map((col) => {
     if (!col.editable) {
       return col;
     }
@@ -237,15 +224,21 @@ const UserList = () => {
     };
   });
 
+  const components = {
+    body: {
+      cell: EditableCell,
+      row: EditableRow,
+    },
+  };
+
   return (
     <Table
       components={components}
-      rowClassName={() => 'editable-row'}
-      rowKey={(render) => render.id}
-      bordered
       dataSource={dataSource}
       columns={columns}
+      rowKey={(render) => render.id}
       style={{ margin: 24, textAlign: 'center' }}
+      bordered
     />
   );
 };

@@ -33,7 +33,7 @@ const Login = () => {
       setStorageItem('accessToken', res.data.accessToken);
       setStorageItem('userName', res.data.user.name);
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
-      navigate('/accounts');
+      navigate('/');
     }
   };
 

@@ -5,7 +5,6 @@ import AccountDetail from './pages/AccountDetail/AccountDetail';
 import Accounts from './pages/accounts/accounts';
 import AuthRoute from './pages/Login/AuthRoute';
 import Login from './pages/Login/Login';
-import Main from './pages/Main';
 import UserDetail from './pages/userdetail/UserDetail';
 import Users from './pages/Users/Users';
 
@@ -18,7 +17,7 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<AuthRoute />}>
-            <Route path="/" element={<Main />} />
+            <Route path="/" element={<Accounts />} />
             <Route path="/accounts" element={<Accounts />} />
             <Route path="/account/:id" element={<AccountDetail />} />
             <Route path="/users" element={<Users />} />

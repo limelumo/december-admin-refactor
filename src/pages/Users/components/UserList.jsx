@@ -1,148 +1,167 @@
 import 'antd/dist/antd.css';
 
-import { Input } from 'antd';
+import { CheckOutlined, CloseOutlined, DeleteFilled } from '@ant-design/icons';
+import { Popconfirm, Table } from 'antd';
 import usersApi from 'api/usersApi';
-import UserAddForm from 'components/Users/UserAddForm';
-import useFormat from 'hooks/useFormat';
-import React, { useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { dataTotalCountState, usersDataState } from 'store/userList';
-import styled from 'styled-components';
+import { useMutation, useQueryClient } from 'react-query';
+import { useRecoilValue } from 'recoil';
+import { usersDataState } from 'store/userList';
 
-import User from './User';
+import { EditableCell, EditableRow } from './UserEdit';
 
 const UserList = () => {
-  const setDataTotalCount = useSetRecoilState(dataTotalCountState);
-  const usersData = useRecoilValue(usersDataState);
+  const dataSource = useRecoilValue(usersDataState);
+  const queryClient = useQueryClient();
 
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [result, setResult] = useState(null);
+  const { mutate: removeMutate } = useMutation((targetId) => usersApi.removeUser(targetId), {
+    onSuccess: () => queryClient.invalidateQueries('users'),
+    enabled: false,
+  });
 
-  const { getFormatData } = useFormat(result);
+  const handleDelete = (targetId) => removeMutate(targetId);
 
-  const { Search } = Input;
-
-  const { refetch, isSuccess, data } = useQuery(
-    ['search-user-data', searchKeyword],
-    () => usersApi.getSearchData({ q: searchKeyword }),
+  const defaultColumns = [
     {
-      enabled: false,
-      staleTime: 2000,
-    }
-  );
+      title: '고객명',
+      dataIndex: 'name',
+      align: 'left',
+      editable: true,
+    },
+    {
+      title: '보유 계좌',
+      dataIndex: 'account_count',
+      align: 'center',
+    },
+    {
+      title: '임직원 계좌',
+      dataIndex: 'is_staff',
+      align: 'center',
+      render: (_, record) =>
+        record.is_staff === 'true' ? (
+          <CheckOutlined style={{ color: 'green' }} />
+        ) : (
+          <CloseOutlined style={{ color: 'salmon' }} />
+        ),
+      filters: [
+        {
+          text: '임직원 계좌 보유',
+          value: 'true',
+        },
+        {
+          text: '임직원 계좌 미보유',
+          value: 'false',
+        },
+      ],
+      onFilter: (value, record) => record.is_staff === value,
+    },
+    {
+      title: '이메일',
+      dataIndex: 'email',
+      align: 'center',
+    },
+    {
+      title: '성별코드',
+      dataIndex: 'gender_origin',
+      align: 'center',
+    },
+    {
+      title: '생년월일',
+      dataIndex: 'birth_date',
+      align: 'center',
+    },
+    {
+      title: '휴대폰 번호',
+      dataIndex: 'phone_number',
+      align: 'center',
+    },
+    {
+      title: '최근 로그인',
+      dataIndex: 'last_login',
+      align: 'center',
+    },
+    {
+      title: '혜택 수신 동의',
+      dataIndex: 'allow_marketing_push',
+      align: 'center',
+      render: (_, record) =>
+        record.allow_marketing_push === 'true' ? (
+          <CheckOutlined style={{ color: 'green' }} />
+        ) : (
+          <CloseOutlined style={{ color: 'salmon' }} />
+        ),
+    },
+    {
+      title: '활성화',
+      dataIndex: 'is_active',
+      align: 'center',
+      render: (_, record) =>
+        record.is_active === 'true' ? (
+          <CheckOutlined style={{ color: 'green' }} />
+        ) : (
+          <CloseOutlined style={{ color: 'salmon' }} />
+        ),
+      filters: [
+        {
+          text: '활성화 고객',
+          value: 'true',
+        },
+        {
+          text: '비활성화 고객',
+          value: 'false',
+        },
+      ],
+      onFilter: (value, record) => record.is_active === value,
+    },
+    {
+      title: '가입일',
+      dataIndex: 'created_at',
+      align: 'center',
+    },
+    {
+      title: '삭제',
+      dataIndex: 'operation',
+      align: 'center',
+      render: (_, record) =>
+        dataSource.length >= 1 ? (
+          <Popconfirm title="삭제하시겠습니까?" onConfirm={() => handleDelete(record.id)}>
+            <DeleteFilled style={{ fontSize: '16px' }} />
+          </Popconfirm>
+        ) : null,
+    },
+  ];
 
-  useEffect(() => {
-    if (isSuccess) {
-      setResult(data);
+  const columns = defaultColumns.map((col) => {
+    if (!col.editable) {
+      return col;
     }
-  }, [data, isSuccess]);
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+      }),
+    };
+  });
 
-  useEffect(() => {
-    if (result !== null) {
-      getFormatData();
-      setDataTotalCount(result.length);
-      setSearchKeyword('');
-    }
-  }, [result]);
-
-  const handleUserSearch = () => refetch();
+  const components = {
+    body: {
+      cell: EditableCell,
+      row: EditableRow,
+    },
+  };
 
   return (
-    <Section>
-      <Wrapper>
-        <Search
-          placeholder="검색어를 입력하세요"
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-          onSearch={handleUserSearch}
-          style={{ width: 280 }}
-          allowClear
-        />
-        <UserAddForm />
-      </Wrapper>
-
-      <ListTable>
-        <table>
-          <Thead>
-            <tr>
-              <th>고객명</th>
-              <th>보유 계좌수</th>
-              <th>이메일</th>
-              <th>성별코드</th>
-              <th>생년월일</th>
-              <th>휴대폰 번호</th>
-              <th>최근 로그인</th>
-              <th>혜택 수신 동의</th>
-              <th>활성화</th>
-              <th>가입일</th>
-              <th>삭제</th>
-            </tr>
-          </Thead>
-
-          <Tbody>
-            {usersData.map((user) => (
-              <User key={user.id} {...user} />
-            ))}
-          </Tbody>
-        </table>
-      </ListTable>
-    </Section>
+    <Table
+      components={components}
+      dataSource={dataSource}
+      columns={columns}
+      rowKey={(render) => render.id}
+      style={{ margin: 24, textAlign: 'center' }}
+      bordered
+    />
   );
 };
 
-const Section = styled.section`
-  padding: 0 24px;
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ListTable = styled.div`
-  max-width: 100%;
-  position: relative;
-  transition: opacity 0.3s;
-  user-select: none;
-
-  table {
-    width: 100%;
-    table-layout: auto;
-    border-collapse: separate;
-    text-align: center;
-    border-spacing: 0;
-    background-color: white;
-  }
-`;
-
-const Thead = styled.thead`
-  background: #fafafa;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.3s ease;
-  vertical-align: middle;
-  overflow-wrap: break-word;
-
-  tr {
-    display: table-row;
-    vertical-align: inherit;
-    border-color: inherit;
-
-    th {
-      color: rgba(0, 0, 0, 0.85);
-      font-weight: 500;
-      text-align: center;
-      padding: 16px;
-      border-right: 1px solid #f0f0f0;
-    }
-  }
-`;
-
-const Tbody = styled.tbody`
-  display: table-row-group;
-  vertical-align: middle;
-  border-color: inherit;
-  overflow-wrap: break-word;
-`;
-
-export default React.memo(UserList);
+export default UserList;

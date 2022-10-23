@@ -1,21 +1,18 @@
+import 'antd/dist/antd.css';
+
+import { Button, Input, PageHeader } from 'antd';
 import usersApi from 'api/usersApi';
-import { useQuery } from 'react-query';
+import useFormat from 'hooks/useFormat';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import {
-  accountsState,
-  currentPageState,
-  dataTotalCountState,
-  usersDataState,
-  userSettingDataState,
-} from 'store/userList';
+import { accountsState, dataTotalCountState, usersDataState, userSettingDataState } from 'store/userList';
+import styled from 'styled-components';
 import { formatUsersData } from 'utils/formatUsersData';
 
 import UserList from './components/UserList';
-import UserListPagination from './components/UserListPagination';
-import UserMenu from './components/UserMenu';
 
 const Users = () => {
-  const currentPage = useRecoilValue(currentPageState);
   const userSettingData = useRecoilValue(userSettingDataState);
   const accountsData = useRecoilValue(accountsState);
 
@@ -23,6 +20,14 @@ const Users = () => {
   const setUserSettingData = useSetRecoilState(userSettingDataState);
   const setAccountsData = useSetRecoilState(accountsState);
   const setUsersData = useSetRecoilState(usersDataState);
+
+  const [count, setCount] = useState(2);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [result, setResult] = useState(null);
+
+  const queryClient = useQueryClient();
+
+  const { getFormatData } = useFormat(result);
 
   const { data: accounts } = useQuery(['accounts'], usersApi.getAccountsData, {
     refetchOnWindowFocus: false,
@@ -38,7 +43,7 @@ const Users = () => {
     onSuccess: (res) => setUserSettingData(res.data),
   });
 
-  useQuery(['users', currentPage], () => usersApi.getUsersData({ _limit: 10, _page: currentPage }), {
+  useQuery(['users'], () => usersApi.getUsersData(), {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
     // eslint-disable-next-line no-implicit-coercion
@@ -66,13 +71,91 @@ const Users = () => {
     },
   });
 
+  const { mutate: addMutate } = useMutation((newUserInfo) => usersApi.addNewUserData(newUserInfo), {
+    onSuccess: () => queryClient.invalidateQueries('users'),
+    enabled: false,
+  });
+
+  const { refetch, isSuccess, data } = useQuery(
+    ['search-user-data', searchKeyword],
+    () => usersApi.getSearchData({ q: searchKeyword }),
+    {
+      enabled: false,
+      staleTime: 2000,
+    }
+  );
+
+  useEffect(() => {
+    if (isSuccess) {
+      setResult(data);
+    }
+  }, [data, isSuccess]);
+
+  useEffect(() => {
+    if (result !== null) {
+      getFormatData();
+      setDataTotalCount(result.length);
+      setSearchKeyword('');
+    }
+  }, [result]);
+
+  const handleUserSearch = () => refetch();
+
+  const handleAdd = () => {
+    const newUserInfo = {
+      key: count,
+      name: `홍길동 ${count}`,
+      account_count: 0,
+      email: `hong${count}@test.com`,
+      password: `hong${count}`,
+      gender_origin: 0,
+      birth_date: new Date().toISOString(),
+      phone_number: '010-0000-0000',
+      last_login: new Date().toISOString(),
+      allow_marketing_push: 'false',
+      is_active: 'false',
+      created_at: new Date().toISOString(),
+    };
+
+    addMutate(newUserInfo);
+    setCount(count + 1);
+  };
+
   return (
     <>
-      <UserMenu />
+      <Section>
+        <PageHeader title="고객 리스트" onBack={() => window.location.reload()} />
+
+        <Wrapper>
+          <Input.Search
+            placeholder="검색어를 입력하세요"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            onSearch={handleUserSearch}
+            style={{ width: 280, marginRight: 16 }}
+            allowClear
+          />
+
+          <Button onClick={handleAdd} type="primary">
+            새로운 고객 추가
+          </Button>
+        </Wrapper>
+      </Section>
+
       <UserList />
-      <UserListPagination />
     </>
   );
 };
+
+const Section = styled.section`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+`;
+
+const Wrapper = styled.div`
+  margin-right: 24px;
+`;
 
 export default Users;

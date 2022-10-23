@@ -11,7 +11,7 @@ const usersApi = {
 
   addNewUserData: async (config) => await axiosInstance.post('/users', config),
 
-  updateUserData: async (targetId, config) => await axiosInstance.patch(`/users/${targetId}`, { name: config }),
+  updateUserData: async (config) => await axiosInstance.patch(`/users/${config.targetId}`, config.value),
 
   removeUser: async (targetId) => await axiosInstance.delete(`/users/${targetId}`),
 };
